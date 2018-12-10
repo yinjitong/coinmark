@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -719,13 +720,15 @@ public class ScheduledTaskService {
             SysParameter coinPrice = sysParameterMapper.selectByPrimaryKey(9);
             coinPriceBig = coinPrice.getParamValue();
         }else{
-            coinPriceBig=new BigDecimal(Integer.parseInt(coinPriceDictionaries.get(0).getDicValue()));
+            coinPriceBig=new BigDecimal(Double.parseDouble(coinPriceDictionaries.get(0).getDicValue()));
         }
         // 获取比例值增量
         SysParameter coinIncr = sysParameterMapper.selectByPrimaryKey(10);
         BigDecimal currentPrice = coinPriceBig.add(coinIncr.getParamValue());
+        BigDecimal currentPriceBig = currentPrice.setScale(2, BigDecimal.ROUND_HALF_UP);
 
-        coinPriceDictionaries.get(0).setDicValue(currentPrice+"");
+
+        coinPriceDictionaries.get(0).setDicValue(currentPriceBig+"");
         sysDictionaryMapper.updateByPrimaryKey(coinPriceDictionaries.get(0));
 
 

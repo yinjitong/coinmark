@@ -465,7 +465,7 @@ public class ConsumerService {
         //锁仓资产每日释放比例
         SysParameter sysParameter1 = sysParameterMapper.selectByPrimaryKey(2);
         if (sysParameter1 != null) {
-            BigDecimal paramValue = sysParameter1.getParamValue();
+            BigDecimal paramValue = sysParameter1.getParamValue().setScale(2,BigDecimal.ROUND_HALF_UP);
             consumerWalletVO.setReleaseLockrepoRatio(paramValue);
         }
 
@@ -676,11 +676,11 @@ public class ConsumerService {
             SysParameter coinPrice = sysParameterMapper.selectByPrimaryKey(9);
             coinPriceBig = coinPrice.getParamValue();
         }else{
-            coinPriceBig=new BigDecimal(Integer.parseInt(coinPriceDictionaries.get(0).getDicValue()));
+            coinPriceBig=new BigDecimal(Double.parseDouble(coinPriceDictionaries.get(0).getDicValue()));
         }
         // 获取比例值增量
         SysParameter coinIncr = sysParameterMapper.selectByPrimaryKey(10);
-        BigDecimal currentPrice = coinPriceBig.add(coinIncr.getParamValue());
+        BigDecimal currentPrice = coinPriceBig.add(coinIncr.getParamValue()).setScale(2,BigDecimal.ROUND_HALF_UP);
 
         //最终价格
         consumerAppVO.setCurrentPrice(currentPrice);
