@@ -466,7 +466,7 @@ public class ConsumerService {
         //锁仓资产每日释放比例
         SysParameter sysParameter1= sysParameterMapper.selectByPrimaryKey(2);
         if (sysParameter1 != null) {
-            BigDecimal paramValue = sysParameter.getParamValue();
+            BigDecimal paramValue = sysParameter1.getParamValue();
             consumerWalletVO.setReleaseLockrepoRatio(paramValue);
         }
 
