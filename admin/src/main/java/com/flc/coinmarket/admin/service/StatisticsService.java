@@ -472,11 +472,11 @@ public class StatisticsService {
             SysParameter coinPrice = sysParameterMapper.selectByPrimaryKey(9);
             coinPriceBig = coinPrice.getParamValue();
         }else{
-            coinPriceBig=new BigDecimal(Integer.parseInt(coinPriceDictionaries.get(0).getDicValue()));
+            coinPriceBig=new BigDecimal(Double.parseDouble(coinPriceDictionaries.get(0).getDicValue()));
         }
         // 获取比例值增量
         SysParameter coinIncr = sysParameterMapper.selectByPrimaryKey(10);
-        BigDecimal currentPrice = coinPriceBig.add(coinIncr.getParamValue());
+        BigDecimal currentPrice = coinPriceBig.add(coinIncr.getParamValue()).setScale(2,BigDecimal.ROUND_HALF_UP);
         Map map =new HashMap<>();
         map.put("currentPrice",currentPrice);
         response.setData(map);
