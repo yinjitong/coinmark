@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flc.coinmarket.dao.mysql.mapper.statistics.ProfitsTotalMapper">
+  <resultMap id="BaseResultMap" type="com.flc.coinmarket.dao.mysql.model.statistics.ProfitsTotal">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="profits_team" jdbcType="DECIMAL" property="profitsTeam" />
+    <result column="profits_referee" jdbcType="DECIMAL" property="profitsReferee" />
+    <result column="profits_lockrepo" jdbcType="DECIMAL" property="profitsLockrepo" />
+    <result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, profits_team, profits_referee, profits_lockrepo, created_time
+  </sql>
+  <select id="selectByExample" parameterType="com.flc.coinmarket.dao.mysql.model.statistics.ProfitsTotalExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from profits_total
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from profits_total
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from profits_total
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.flc.coinmarket.dao.mysql.model.statistics.ProfitsTotalExample">
+    delete from profits_total
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.flc.coinmarket.dao.mysql.model.statistics.ProfitsTotal">
+    insert into profits_total (profits_team, profits_referee,
+      profits_lockrepo, created_time)
+    values (#{profitsTeam,jdbcType=DECIMAL}, #{profitsReferee,jdbcType=DECIMAL},
+      #{profitsLockrepo,jdbcType=DECIMAL}, #{createdTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.flc.coinmarket.dao.mysql.model.statistics.ProfitsTotal">
+    insert into profits_total
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="profitsTeam != null">
+        profits_team,
+      </if>
+      <if test="profitsReferee != null">
+        profits_referee,
+      </if>
+      <if test="profitsLockrepo != null">
+        profits_lockrepo,
+      </if>
+      <if test="createdTime != null">
+        created_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="profitsTeam != null">
+        #{profitsTeam,jdbcType=DECIMAL},
+      </if>
+      <if test="profitsReferee != null">
+        #{profitsReferee,jdbcType=DECIMAL},
+      </if>
+      <if test="profitsLockrepo != null">
+        #{profitsLockrepo,jdbcType=DECIMAL},
+      </if>
+      <if test="createdTime != null">
+        #{createdTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.flc.coinmarket.dao.mysql.model.statistics.ProfitsTotalExample" resultType="java.lang.Long">
+    select count(*) from profits_total
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update profits_total
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.profitsTeam != null">
+        profits_team = #{record.profitsTeam,jdbcType=DECIMAL},
+      </if>
+      <if test="record.profitsReferee != null">
+        profits_referee = #{record.profitsReferee,jdbcType=DECIMAL},
+      </if>
+      <if test="record.profitsLockrepo != null">
+        profits_lockrepo = #{record.profitsLockrepo,jdbcType=DECIMAL},
+      </if>
+      <if test="record.createdTime != null">
+        created_time = #{record.createdTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update profits_total
+    set id = #{record.id,jdbcType=INTEGER},
+      profits_team = #{record.profitsTeam,jdbcType=DECIMAL},
+      profits_referee = #{record.profitsReferee,jdbcType=DECIMAL},
+      profits_lockrepo = #{record.profitsLockrepo,jdbcType=DECIMAL},
+      created_time = #{record.createdTime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.flc.coinmarket.dao.mysql.model.statistics.ProfitsTotal">
+    update profits_total
+    <set>
+      <if test="profitsTeam != null">
+        profits_team = #{profitsTeam,jdbcType=DECIMAL},
+      </if>
+      <if test="profitsReferee != null">
+        profits_referee = #{profitsReferee,jdbcType=DECIMAL},
+      </if>
+      <if test="profitsLockrepo != null">
+        profits_lockrepo = #{profitsLockrepo,jdbcType=DECIMAL},
+      </if>
+      <if test="createdTime != null">
+        created_time = #{createdTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.flc.coinmarket.dao.mysql.model.statistics.ProfitsTotal">
+    update profits_total
+    set profits_team = #{profitsTeam,jdbcType=DECIMAL},
+      profits_referee = #{profitsReferee,jdbcType=DECIMAL},
+      profits_lockrepo = #{profitsLockrepo,jdbcType=DECIMAL},
+      created_time = #{createdTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectTodayProfitsTotal" parameterType="String" resultType="com.flc.coinmarket.dao.mysql.model.statistics.ProfitsTotal">
+  SELECT
+  id,
+  profits_team profitsTeam,
+  profits_referee profitsReferee,
+  profits_lockrepo profitsLockrepo,
+  created_time createdTime
+  FROM profits_total WHERE
+  created_time like #{todayYMD}
+  </select>
+  
+  <select id="selectLatest" resultMap="BaseResultMap">
+    select * from profits_total where date_format(created_time,'%Y-%m-%d') = (select max(date_format(created_time,'%Y-%m-%d')) FROM profits_total)
+  </select>
+</mapper>

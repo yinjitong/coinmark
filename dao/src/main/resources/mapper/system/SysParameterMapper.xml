@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flc.coinmarket.dao.mysql.mapper.system.SysParameterMapper">
+  <resultMap id="BaseResultMap" type="com.flc.coinmarket.dao.mysql.model.system.SysParameter">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="param_code" jdbcType="VARCHAR" property="paramCode" />
+    <result column="param_name" jdbcType="VARCHAR" property="paramName" />
+    <result column="param_value" jdbcType="DECIMAL" property="paramValue" />
+    <result column="updated_user" jdbcType="INTEGER" property="updatedUser" />
+    <result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime" />
+    <result column="created_user" jdbcType="INTEGER" property="createdUser" />
+    <result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, param_code, param_name, param_value, updated_user, updated_time, created_user, 
+    created_time
+  </sql>
+  <select id="selectByExample" parameterType="com.flc.coinmarket.dao.mysql.model.system.SysParameterExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from sys_parameter
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_parameter
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from sys_parameter
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.flc.coinmarket.dao.mysql.model.system.SysParameterExample">
+    delete from sys_parameter
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.flc.coinmarket.dao.mysql.model.system.SysParameter">
+    insert into sys_parameter (id, param_code, param_name, 
+      param_value, updated_user, updated_time, 
+      created_user, created_time)
+    values (#{id,jdbcType=INTEGER}, #{paramCode,jdbcType=VARCHAR}, #{paramName,jdbcType=VARCHAR}, 
+      #{paramValue,jdbcType=DECIMAL}, #{updatedUser,jdbcType=INTEGER}, #{updatedTime,jdbcType=TIMESTAMP}, 
+      #{createdUser,jdbcType=INTEGER}, #{createdTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.flc.coinmarket.dao.mysql.model.system.SysParameter">
+    <selectKey keyColumn="id" keyProperty="id" order="AFTER"
+               resultType="int">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into sys_parameter
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="paramCode != null">
+        param_code,
+      </if>
+      <if test="paramName != null">
+        param_name,
+      </if>
+      <if test="paramValue != null">
+        param_value,
+      </if>
+      <if test="updatedUser != null">
+        updated_user,
+      </if>
+      <if test="updatedTime != null">
+        updated_time,
+      </if>
+      <if test="createdUser != null">
+        created_user,
+      </if>
+      <if test="createdTime != null">
+        created_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="paramCode != null">
+        #{paramCode,jdbcType=VARCHAR},
+      </if>
+      <if test="paramName != null">
+        #{paramName,jdbcType=VARCHAR},
+      </if>
+      <if test="paramValue != null">
+        #{paramValue,jdbcType=DECIMAL},
+      </if>
+      <if test="updatedUser != null">
+        #{updatedUser,jdbcType=INTEGER},
+      </if>
+      <if test="updatedTime != null">
+        #{updatedTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createdUser != null">
+        #{createdUser,jdbcType=INTEGER},
+      </if>
+      <if test="createdTime != null">
+        #{createdTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.flc.coinmarket.dao.mysql.model.system.SysParameterExample" resultType="java.lang.Long">
+    select count(*) from sys_parameter
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update sys_parameter
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.paramCode != null">
+        param_code = #{record.paramCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.paramName != null">
+        param_name = #{record.paramName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.paramValue != null">
+        param_value = #{record.paramValue,jdbcType=DECIMAL},
+      </if>
+      <if test="record.updatedUser != null">
+        updated_user = #{record.updatedUser,jdbcType=INTEGER},
+      </if>
+      <if test="record.updatedTime != null">
+        updated_time = #{record.updatedTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.createdUser != null">
+        created_user = #{record.createdUser,jdbcType=INTEGER},
+      </if>
+      <if test="record.createdTime != null">
+        created_time = #{record.createdTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update sys_parameter
+    set id = #{record.id,jdbcType=INTEGER},
+      param_code = #{record.paramCode,jdbcType=VARCHAR},
+      param_name = #{record.paramName,jdbcType=VARCHAR},
+      param_value = #{record.paramValue,jdbcType=DECIMAL},
+      updated_user = #{record.updatedUser,jdbcType=INTEGER},
+      updated_time = #{record.updatedTime,jdbcType=TIMESTAMP},
+      created_user = #{record.createdUser,jdbcType=INTEGER},
+      created_time = #{record.createdTime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.flc.coinmarket.dao.mysql.model.system.SysParameter">
+    update sys_parameter
+    <set>
+      <if test="paramCode != null">
+        param_code = #{paramCode,jdbcType=VARCHAR},
+      </if>
+      <if test="paramName != null">
+        param_name = #{paramName,jdbcType=VARCHAR},
+      </if>
+      <if test="paramValue != null">
+        param_value = #{paramValue,jdbcType=DECIMAL},
+      </if>
+      <if test="updatedUser != null">
+        updated_user = #{updatedUser,jdbcType=INTEGER},
+      </if>
+      <if test="updatedTime != null">
+        updated_time = #{updatedTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createdUser != null">
+        created_user = #{createdUser,jdbcType=INTEGER},
+      </if>
+      <if test="createdTime != null">
+        created_time = #{createdTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.flc.coinmarket.dao.mysql.model.system.SysParameter">
+    update sys_parameter
+    set param_code = #{paramCode,jdbcType=VARCHAR},
+      param_name = #{paramName,jdbcType=VARCHAR},
+      param_value = #{paramValue,jdbcType=DECIMAL},
+      updated_user = #{updatedUser,jdbcType=INTEGER},
+      updated_time = #{updatedTime,jdbcType=TIMESTAMP},
+      created_user = #{createdUser,jdbcType=INTEGER},
+      created_time = #{createdTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

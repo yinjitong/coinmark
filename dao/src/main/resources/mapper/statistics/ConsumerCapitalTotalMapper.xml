@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flc.coinmarket.dao.mysql.mapper.statistics.ConsumerCapitalTotalMapper">
+  <resultMap id="BaseResultMap" type="com.flc.coinmarket.dao.mysql.model.statistics.ConsumerCapitalTotal">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="consumer_id" jdbcType="INTEGER" property="consumerId" />
+    <result column="account_id" jdbcType="INTEGER" property="accountId" />
+    <result column="trance_type" jdbcType="VARCHAR" property="tranceType" />
+    <result column="source_type" jdbcType="VARCHAR" property="sourceType" />
+    <result column="total_funds" jdbcType="DECIMAL" property="totalFunds" />
+    <result column="floating_funds" jdbcType="DECIMAL" property="floatingFunds" />
+    <result column="lockrepo_funds" jdbcType="DECIMAL" property="lockrepoFunds" />
+    <result column="profits_funds" jdbcType="DECIMAL" property="profitsFunds" />
+    <result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+    <result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, consumer_id, account_id, trance_type, source_type, total_funds, floating_funds, 
+    lockrepo_funds, profits_funds, created_time, updated_time
+  </sql>
+  <select id="selectByExample" parameterType="com.flc.coinmarket.dao.mysql.model.statistics.ConsumerCapitalTotalExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from consumer_capital_total
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from consumer_capital_total
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from consumer_capital_total
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.flc.coinmarket.dao.mysql.model.statistics.ConsumerCapitalTotalExample">
+    delete from consumer_capital_total
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.flc.coinmarket.dao.mysql.model.statistics.ConsumerCapitalTotal">
+    insert into consumer_capital_total (id, consumer_id, account_id, 
+      trance_type, source_type, total_funds, 
+      floating_funds, lockrepo_funds, profits_funds, 
+      created_time, updated_time)
+    values (#{id,jdbcType=INTEGER}, #{consumerId,jdbcType=INTEGER}, #{accountId,jdbcType=INTEGER}, 
+      #{tranceType,jdbcType=VARCHAR}, #{sourceType,jdbcType=VARCHAR}, #{totalFunds,jdbcType=DECIMAL}, 
+      #{floatingFunds,jdbcType=DECIMAL}, #{lockrepoFunds,jdbcType=DECIMAL}, #{profitsFunds,jdbcType=DECIMAL}, 
+      #{createdTime,jdbcType=TIMESTAMP}, #{updatedTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.flc.coinmarket.dao.mysql.model.statistics.ConsumerCapitalTotal">
+    insert into consumer_capital_total
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="consumerId != null">
+        consumer_id,
+      </if>
+      <if test="accountId != null">
+        account_id,
+      </if>
+      <if test="tranceType != null">
+        trance_type,
+      </if>
+      <if test="sourceType != null">
+        source_type,
+      </if>
+      <if test="totalFunds != null">
+        total_funds,
+      </if>
+      <if test="floatingFunds != null">
+        floating_funds,
+      </if>
+      <if test="lockrepoFunds != null">
+        lockrepo_funds,
+      </if>
+      <if test="profitsFunds != null">
+        profits_funds,
+      </if>
+      <if test="createdTime != null">
+        created_time,
+      </if>
+      <if test="updatedTime != null">
+        updated_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="consumerId != null">
+        #{consumerId,jdbcType=INTEGER},
+      </if>
+      <if test="accountId != null">
+        #{accountId,jdbcType=INTEGER},
+      </if>
+      <if test="tranceType != null">
+        #{tranceType,jdbcType=VARCHAR},
+      </if>
+      <if test="sourceType != null">
+        #{sourceType,jdbcType=VARCHAR},
+      </if>
+      <if test="totalFunds != null">
+        #{totalFunds,jdbcType=DECIMAL},
+      </if>
+      <if test="floatingFunds != null">
+        #{floatingFunds,jdbcType=DECIMAL},
+      </if>
+      <if test="lockrepoFunds != null">
+        #{lockrepoFunds,jdbcType=DECIMAL},
+      </if>
+      <if test="profitsFunds != null">
+        #{profitsFunds,jdbcType=DECIMAL},
+      </if>
+      <if test="createdTime != null">
+        #{createdTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedTime != null">
+        #{updatedTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.flc.coinmarket.dao.mysql.model.statistics.ConsumerCapitalTotalExample" resultType="java.lang.Long">
+    select count(*) from consumer_capital_total
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update consumer_capital_total
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.consumerId != null">
+        consumer_id = #{record.consumerId,jdbcType=INTEGER},
+      </if>
+      <if test="record.accountId != null">
+        account_id = #{record.accountId,jdbcType=INTEGER},
+      </if>
+      <if test="record.tranceType != null">
+        trance_type = #{record.tranceType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sourceType != null">
+        source_type = #{record.sourceType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.totalFunds != null">
+        total_funds = #{record.totalFunds,jdbcType=DECIMAL},
+      </if>
+      <if test="record.floatingFunds != null">
+        floating_funds = #{record.floatingFunds,jdbcType=DECIMAL},
+      </if>
+      <if test="record.lockrepoFunds != null">
+        lockrepo_funds = #{record.lockrepoFunds,jdbcType=DECIMAL},
+      </if>
+      <if test="record.profitsFunds != null">
+        profits_funds = #{record.profitsFunds,jdbcType=DECIMAL},
+      </if>
+      <if test="record.createdTime != null">
+        created_time = #{record.createdTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updatedTime != null">
+        updated_time = #{record.updatedTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update consumer_capital_total
+    set id = #{record.id,jdbcType=INTEGER},
+      consumer_id = #{record.consumerId,jdbcType=INTEGER},
+      account_id = #{record.accountId,jdbcType=INTEGER},
+      trance_type = #{record.tranceType,jdbcType=VARCHAR},
+      source_type = #{record.sourceType,jdbcType=VARCHAR},
+      total_funds = #{record.totalFunds,jdbcType=DECIMAL},
+      floating_funds = #{record.floatingFunds,jdbcType=DECIMAL},
+      lockrepo_funds = #{record.lockrepoFunds,jdbcType=DECIMAL},
+      profits_funds = #{record.profitsFunds,jdbcType=DECIMAL},
+      created_time = #{record.createdTime,jdbcType=TIMESTAMP},
+      updated_time = #{record.updatedTime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.flc.coinmarket.dao.mysql.model.statistics.ConsumerCapitalTotal">
+    update consumer_capital_total
+    <set>
+      <if test="consumerId != null">
+        consumer_id = #{consumerId,jdbcType=INTEGER},
+      </if>
+      <if test="accountId != null">
+        account_id = #{accountId,jdbcType=INTEGER},
+      </if>
+      <if test="tranceType != null">
+        trance_type = #{tranceType,jdbcType=VARCHAR},
+      </if>
+      <if test="sourceType != null">
+        source_type = #{sourceType,jdbcType=VARCHAR},
+      </if>
+      <if test="totalFunds != null">
+        total_funds = #{totalFunds,jdbcType=DECIMAL},
+      </if>
+      <if test="floatingFunds != null">
+        floating_funds = #{floatingFunds,jdbcType=DECIMAL},
+      </if>
+      <if test="lockrepoFunds != null">
+        lockrepo_funds = #{lockrepoFunds,jdbcType=DECIMAL},
+      </if>
+      <if test="profitsFunds != null">
+        profits_funds = #{profitsFunds,jdbcType=DECIMAL},
+      </if>
+      <if test="createdTime != null">
+        created_time = #{createdTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedTime != null">
+        updated_time = #{updatedTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.flc.coinmarket.dao.mysql.model.statistics.ConsumerCapitalTotal">
+    update consumer_capital_total
+    set consumer_id = #{consumerId,jdbcType=INTEGER},
+      account_id = #{accountId,jdbcType=INTEGER},
+      trance_type = #{tranceType,jdbcType=VARCHAR},
+      source_type = #{sourceType,jdbcType=VARCHAR},
+      total_funds = #{totalFunds,jdbcType=DECIMAL},
+      floating_funds = #{floatingFunds,jdbcType=DECIMAL},
+      lockrepo_funds = #{lockrepoFunds,jdbcType=DECIMAL},
+      profits_funds = #{profitsFunds,jdbcType=DECIMAL},
+      created_time = #{createdTime,jdbcType=TIMESTAMP},
+      updated_time = #{updatedTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectTodayConsumerCapitalTotal" parameterType="int"
+          resultType="com.flc.coinmarket.dao.mysql.model.statistics.ConsumerCapitalTotal">
+       SELECT
+    id,total_funds totalFunds,
+    floating_funds floatingFunds,
+    lockrepo_funds lockrepoFunds,
+    profits_funds profitsFunds
+    FROM consumer_capital_total WHERE  consumer_id=#{consumerId}
+     AND DATE_FORMAT(created_time,'%Y-%m-%d') = (SELECT MAX(DATE_FORMAT(created_time,'%Y-%m-%d'))
+      FROM consumer_capital_total WHERE consumer_id =#{consumerId})
+  </select>
+
+  <select id="selectLatest" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select * from consumer_capital_total where consumer_id = #{consumerId}
+    and date_format(created_time,'%Y-%m-%d') = (select max(date_format(created_time,'%Y-%m-%d')) FROM consumer_capital_total where consumer_id = #{consumerId})
+  </select>
+
+  <insert id="batchInsert" parameterType="java.util.List">
+    <selectKey resultType ="java.lang.Integer" keyProperty= "id" order= "AFTER">
+      SELECT LAST_INSERT_ID()
+    </selectKey >
+    insert into consumer_capital_total (consumer_id, account_id,
+    trance_type, source_type, total_funds,
+    floating_funds, lockrepo_funds, profits_funds,
+    created_time, updated_time)
+    values
+    <foreach collection ="list" item="item" index= "capital" separator =",">
+      (#{item.consumerId},#{item.accountId},#{item.tranceType},#{item.sourceType},#{item.totalFunds},
+      #{item.floatingFunds},#{item.lockrepoFunds},#{item.profitsFunds},#{item.createdTime},#{item.updatedTime})
+    </foreach >
+  </insert>
+</mapper>

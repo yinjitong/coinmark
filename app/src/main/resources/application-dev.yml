@@ -1,0 +1,53 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: app    # 项目名称尽量用小写
+  datasource:
+    name: mysql
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      #监控统计拦截的filters
+      filters: stat
+      driver-class-name: com.mysql.jdbc.Driver
+      url: jdbc:mysql://rm-8vb9q0m9d1vtweyguzo.mysql.zhangbei.rds.aliyuncs.com:3306/bht?characterEncoding=utf-8&useSSL=false&useCursorFetch=true
+      username: bht
+      password: bht_2018
+#      url: jdbc:mysql://127.0.0.1:3306/cmk?characterEncoding=utf-8&useSSL=false&useCursorFetch=true
+#      username: root
+#      password: root
+    mvc:
+      static-path-pattern: /static/**
+  jackson:
+    deserialization:
+      FAIL_ON_UNKNOWN_PROPERTIES: false
+    default-property-inclusion: non_null
+
+
+mybatis:
+  typeAliasesPackage: com.flc.coinmarket.dao.mysql.model.*
+  mapperLocations: classpath:mapper/*/*.xml  #指定*Mapper.xml的位置
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+pagehelper:
+  helperDialect: mysql
+  reasonable: false
+  supportMethodsArguments: true
+  params: count=countSql
+  #mongodb://root:****@dds-8vbce58e780028c41.mongodb.zhangbei.rds.aliyuncs.com:3717,dds-8vbce58e780028c42.mongodb.zhangbei.rds.aliyuncs.com:3717/admin?replicaSet=mgset-500025988
+
+bugumongo:
+  db:
+    host: dds-8vbce58e780028c41916-pub.mongodb.zhangbei.rds.aliyuncs.com
+    port: 3717
+    database: admin
+    username: root
+    password: bht_2018
+#    host: 192.168.228.133
+#    port: 27017
+#    database: mongotest
+logging:
+  level:
+    root: INFO
+  file: ./logs/app.log

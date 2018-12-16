@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flc.coinmarket.dao.mysql.mapper.consumer.ConsumerTeamMapper">
+  <resultMap id="BaseResultMap" type="com.flc.coinmarket.dao.mysql.model.consumer.ConsumerTeam">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="consumer_id" jdbcType="INTEGER" property="consumerId" />
+    <result column="team_pos_code" jdbcType="VARCHAR" property="teamPosCode" />
+    <result column="left_total_member" jdbcType="INTEGER" property="leftTotalMember" />
+    <result column="right_total_member" jdbcType="INTEGER" property="rightTotalMember" />
+    <result column="left_profits_total" jdbcType="DECIMAL" property="leftProfitsTotal" />
+    <result column="left_lockrepo_total" jdbcType="DECIMAL" property="leftLockrepoTotal" />
+    <result column="left_floating_total" jdbcType="DECIMAL" property="leftFloatingTotal" />
+    <result column="right_profits_total" jdbcType="DECIMAL" property="rightProfitsTotal" />
+    <result column="right_lockrepo_total" jdbcType="DECIMAL" property="rightLockrepoTotal" />
+    <result column="right_floating_total" jdbcType="DECIMAL" property="rightFloatingTotal" />
+    <result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, consumer_id, team_pos_code, left_total_member, right_total_member, left_profits_total, 
+    left_lockrepo_total, left_floating_total, right_profits_total, right_lockrepo_total, 
+    right_floating_total, created_time
+  </sql>
+  <select id="selectByExample" parameterType="com.flc.coinmarket.dao.mysql.model.consumer.ConsumerTeamExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from consumer_team
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from consumer_team
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from consumer_team
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.flc.coinmarket.dao.mysql.model.consumer.ConsumerTeamExample">
+    delete from consumer_team
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.flc.coinmarket.dao.mysql.model.consumer.ConsumerTeam">
+    insert into consumer_team (id, consumer_id, team_pos_code, 
+      left_total_member, right_total_member, left_profits_total, 
+      left_lockrepo_total, left_floating_total, right_profits_total, 
+      right_lockrepo_total, right_floating_total, 
+      created_time)
+    values (#{id,jdbcType=INTEGER}, #{consumerId,jdbcType=INTEGER}, #{teamPosCode,jdbcType=VARCHAR}, 
+      #{leftTotalMember,jdbcType=INTEGER}, #{rightTotalMember,jdbcType=INTEGER}, #{leftProfitsTotal,jdbcType=DECIMAL}, 
+      #{leftLockrepoTotal,jdbcType=DECIMAL}, #{leftFloatingTotal,jdbcType=DECIMAL}, #{rightProfitsTotal,jdbcType=DECIMAL}, 
+      #{rightLockrepoTotal,jdbcType=DECIMAL}, #{rightFloatingTotal,jdbcType=DECIMAL}, 
+      #{createdTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.flc.coinmarket.dao.mysql.model.consumer.ConsumerTeam">
+    insert into consumer_team
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="consumerId != null">
+        consumer_id,
+      </if>
+      <if test="teamPosCode != null">
+        team_pos_code,
+      </if>
+      <if test="leftTotalMember != null">
+        left_total_member,
+      </if>
+      <if test="rightTotalMember != null">
+        right_total_member,
+      </if>
+      <if test="leftProfitsTotal != null">
+        left_profits_total,
+      </if>
+      <if test="leftLockrepoTotal != null">
+        left_lockrepo_total,
+      </if>
+      <if test="leftFloatingTotal != null">
+        left_floating_total,
+      </if>
+      <if test="rightProfitsTotal != null">
+        right_profits_total,
+      </if>
+      <if test="rightLockrepoTotal != null">
+        right_lockrepo_total,
+      </if>
+      <if test="rightFloatingTotal != null">
+        right_floating_total,
+      </if>
+      <if test="createdTime != null">
+        created_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="consumerId != null">
+        #{consumerId,jdbcType=INTEGER},
+      </if>
+      <if test="teamPosCode != null">
+        #{teamPosCode,jdbcType=VARCHAR},
+      </if>
+      <if test="leftTotalMember != null">
+        #{leftTotalMember,jdbcType=INTEGER},
+      </if>
+      <if test="rightTotalMember != null">
+        #{rightTotalMember,jdbcType=INTEGER},
+      </if>
+      <if test="leftProfitsTotal != null">
+        #{leftProfitsTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="leftLockrepoTotal != null">
+        #{leftLockrepoTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="leftFloatingTotal != null">
+        #{leftFloatingTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="rightProfitsTotal != null">
+        #{rightProfitsTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="rightLockrepoTotal != null">
+        #{rightLockrepoTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="rightFloatingTotal != null">
+        #{rightFloatingTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="createdTime != null">
+        #{createdTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.flc.coinmarket.dao.mysql.model.consumer.ConsumerTeamExample" resultType="java.lang.Long">
+    select count(*) from consumer_team
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update consumer_team
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.consumerId != null">
+        consumer_id = #{record.consumerId,jdbcType=INTEGER},
+      </if>
+      <if test="record.teamPosCode != null">
+        team_pos_code = #{record.teamPosCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.leftTotalMember != null">
+        left_total_member = #{record.leftTotalMember,jdbcType=INTEGER},
+      </if>
+      <if test="record.rightTotalMember != null">
+        right_total_member = #{record.rightTotalMember,jdbcType=INTEGER},
+      </if>
+      <if test="record.leftProfitsTotal != null">
+        left_profits_total = #{record.leftProfitsTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="record.leftLockrepoTotal != null">
+        left_lockrepo_total = #{record.leftLockrepoTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="record.leftFloatingTotal != null">
+        left_floating_total = #{record.leftFloatingTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="record.rightProfitsTotal != null">
+        right_profits_total = #{record.rightProfitsTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="record.rightLockrepoTotal != null">
+        right_lockrepo_total = #{record.rightLockrepoTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="record.rightFloatingTotal != null">
+        right_floating_total = #{record.rightFloatingTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="record.createdTime != null">
+        created_time = #{record.createdTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update consumer_team
+    set id = #{record.id,jdbcType=INTEGER},
+      consumer_id = #{record.consumerId,jdbcType=INTEGER},
+      team_pos_code = #{record.teamPosCode,jdbcType=VARCHAR},
+      left_total_member = #{record.leftTotalMember,jdbcType=INTEGER},
+      right_total_member = #{record.rightTotalMember,jdbcType=INTEGER},
+      left_profits_total = #{record.leftProfitsTotal,jdbcType=DECIMAL},
+      left_lockrepo_total = #{record.leftLockrepoTotal,jdbcType=DECIMAL},
+      left_floating_total = #{record.leftFloatingTotal,jdbcType=DECIMAL},
+      right_profits_total = #{record.rightProfitsTotal,jdbcType=DECIMAL},
+      right_lockrepo_total = #{record.rightLockrepoTotal,jdbcType=DECIMAL},
+      right_floating_total = #{record.rightFloatingTotal,jdbcType=DECIMAL},
+      created_time = #{record.createdTime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.flc.coinmarket.dao.mysql.model.consumer.ConsumerTeam">
+    update consumer_team
+    <set>
+      <if test="consumerId != null">
+        consumer_id = #{consumerId,jdbcType=INTEGER},
+      </if>
+      <if test="teamPosCode != null">
+        team_pos_code = #{teamPosCode,jdbcType=VARCHAR},
+      </if>
+      <if test="leftTotalMember != null">
+        left_total_member = #{leftTotalMember,jdbcType=INTEGER},
+      </if>
+      <if test="rightTotalMember != null">
+        right_total_member = #{rightTotalMember,jdbcType=INTEGER},
+      </if>
+      <if test="leftProfitsTotal != null">
+        left_profits_total = #{leftProfitsTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="leftLockrepoTotal != null">
+        left_lockrepo_total = #{leftLockrepoTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="leftFloatingTotal != null">
+        left_floating_total = #{leftFloatingTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="rightProfitsTotal != null">
+        right_profits_total = #{rightProfitsTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="rightLockrepoTotal != null">
+        right_lockrepo_total = #{rightLockrepoTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="rightFloatingTotal != null">
+        right_floating_total = #{rightFloatingTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="createdTime != null">
+        created_time = #{createdTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.flc.coinmarket.dao.mysql.model.consumer.ConsumerTeam">
+    update consumer_team
+    set consumer_id = #{consumerId,jdbcType=INTEGER},
+      team_pos_code = #{teamPosCode,jdbcType=VARCHAR},
+      left_total_member = #{leftTotalMember,jdbcType=INTEGER},
+      right_total_member = #{rightTotalMember,jdbcType=INTEGER},
+      left_profits_total = #{leftProfitsTotal,jdbcType=DECIMAL},
+      left_lockrepo_total = #{leftLockrepoTotal,jdbcType=DECIMAL},
+      left_floating_total = #{leftFloatingTotal,jdbcType=DECIMAL},
+      right_profits_total = #{rightProfitsTotal,jdbcType=DECIMAL},
+      right_lockrepo_total = #{rightLockrepoTotal,jdbcType=DECIMAL},
+      right_floating_total = #{rightFloatingTotal,jdbcType=DECIMAL},
+      created_time = #{createdTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectTeamInfo" resultType="com.flc.coinmarket.dao.vo.ConsumerTeamVO">
+  SELECT c.id,s.nick_name nickName ,c.phone_no phoneNo,c.create_time createdTime,
+  (IFNULL(t.floating_funds,0)+IFNULL(t.lockrepo_funds,0)+IFNULL(t.profits_funds,0)) totalFunds,
+   IFNULL(t.floating_funds,0) floatingFunds,
+   IFNULL(t.lockrepo_funds,0) lockrepoFunds,
+   IFNULL(t.profits_funds,0) profitsFunds
+   FROM  consumer c LEFT JOIN consumer_capital_account t
+   ON  c.id=t.consumer_id  LEFT JOIN consumer_settings s ON c.id=s.consumer_id where c.delete_flag != "1"
+   ORDER BY totalFunds DESC ,c.id ASC  limit 0,100
+  </select>
+
+  <select id="selectLeftTeam" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select c.id  consumer_id, c.team_pos_code, IFNULL(count(a.id),0) left_total_member,
+    sum(IFNULL(a.floating_funds, 0)) left_floating_total,
+    sum(IFNULL(a.lockrepo_funds, 0)) left_lockrepo_total,
+    sum(IFNULL(a.profits_funds, 0)) left_profits_total
+    from consumer c
+    left join consumer l on instr(l.full_path, concat(c.full_path, c.left_code)) > 0
+    left join consumer_capital_account a on a.consumer_id = l.id
+    where c.id = #{consumerId}
+    group by c.id, c.team_pos_code
+  </select>
+
+  <select id="selectRightTeam" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select c.id, c.team_pos_code, IFNULL(count(a.id),0) right_total_member,
+    sum(IFNULL(a.floating_funds, 0)) right_floating_total,
+    sum(IFNULL(a.lockrepo_funds, 0)) right_lockrepo_total,
+    sum(IFNULL(a.profits_funds, 0)) right_profits_total
+    from consumer c
+    left join consumer r on instr(r.full_path, concat(c.full_path, c.right_code)) > 0
+    left join consumer_capital_account a on a.consumer_id = r.id
+    where c.id = #{consumerId}
+    group by c.id, c.team_pos_code
+  </select>
+
+  <insert id="batchInsert" parameterType="java.util.List">
+    <selectKey resultType ="java.lang.Integer" keyProperty= "id" order= "AFTER">
+      SELECT LAST_INSERT_ID()
+    </selectKey >
+    insert into consumer_team(consumer_id, team_pos_code,
+    left_total_member, right_total_member, left_profits_total,
+    left_lockrepo_total, left_floating_total, right_profits_total,
+    right_lockrepo_total, right_floating_total,
+    created_time)
+    values
+    <foreach collection ="list" item="item" index= "profits" separator =",">
+      (#{item.consumerId},#{item.teamPosCode},#{item.leftTotalMember},#{item.rightTotalMember},
+      #{item.leftProfitsTotal},#{item.leftLockrepoTotal},#{item.leftFloatingTotal},
+      #{item.rightProfitsTotal},#{item.rightLockrepoTotal},#{item.rightFloatingTotal},#{item.createdTime})
+    </foreach >
+  </insert>
+
+  <update id="batchUpdate" parameterType="java.util.List">
+    update consumer_team
+    set
+      left_total_member  =
+    <foreach collection="list" item="item" index="index" separator=" " open="case ID" close="end">
+      when #{item.id} then #{item.leftTotalMember}
+    </foreach>,
+    right_total_member =
+    <foreach collection="list" item="item" index="index" separator=" " open="case ID" close="end">
+      when #{item.id} then #{item.rightTotalMember}
+    </foreach>,
+    left_profits_total =
+    <foreach collection="list" item="item" index="index" separator=" " open="case ID" close="end">
+      when #{item.id} then #{item.leftProfitsTotal}
+    </foreach>,
+      left_lockrepo_total =
+    <foreach collection="list" item="item" index="index" separator=" " open="case ID" close="end">
+      when #{item.id} then #{item.leftLockrepoTotal}
+    </foreach>,
+    left_floating_total =
+    <foreach collection="list" item="item" index="index" separator=" " open="case ID" close="end">
+      when #{item.id} then #{item.leftFloatingTotal}
+    </foreach>,
+    right_profits_total =
+    <foreach collection="list" item="item" index="index" separator=" " open="case ID" close="end">
+      when #{item.id} then #{item.rightProfitsTotal}
+    </foreach>,
+      right_lockrepo_total =
+    <foreach collection="list" item="item" index="index" separator=" " open="case ID" close="end">
+      when #{item.id} then #{item.rightLockrepoTotal}
+    </foreach>,
+    right_floating_total =
+    <foreach collection="list" item="item" index="index" separator=" " open="case ID" close="end">
+      when #{item.id} then #{item.rightFloatingTotal}
+    </foreach>,
+    created_time = NOW()
+    where id in
+    <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+      #{item.id,jdbcType=BIGINT}
+    </foreach>
+  </update>
+  <select id="selectConsumerTeamTrend"    resultType="com.flc.coinmarket.dao.vo.ConsumerTeamVO">
+    SELECT
+    IFNULL(t.right_lockrepo_total,0) rightFunds,
+    IFNULL(t.left_lockrepo_total,0) leftFunds,
+    t.right_total_member rightTotalMember,
+    t.left_total_member leftTotalMember,
+    t.consumer_id conumerId,
+    t.created_time createdTime
+    FROM consumer_team t
+    WHERE t.consumer_id=#{consumerId}
+    <if test="startDate != null">
+      and created_time >= #{startDate}
+    </if>
+    <if test="endDate != null">
+      and #{endDate}>=created_time
+    </if>
+    ORDER BY created_time ASC
+  </select>
+  <select id="selectConsumerTeam"  parameterType="int" resultType="com.flc.coinmarket.dao.mysql.model.consumer.ConsumerTeam">
+		select   t.left_lockrepo_total  leftLockrepoTotal
+		,t.right_lockrepo_total rightLockrepoTotal
+		from consumer_team t where  t.consumer_id= #{consumerId}
+		and date_format(created_time,'%Y-%m-%d') =
+		(select max(date_format(created_time,'%Y-%m-%d')) FROM consumer_team where consumer_id =  #{consumerId})
+  </select>
+
+</mapper>

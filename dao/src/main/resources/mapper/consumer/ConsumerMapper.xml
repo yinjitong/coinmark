@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flc.coinmarket.dao.mysql.mapper.consumer.ConsumerMapper">
+  <resultMap id="BaseResultMap" type="com.flc.coinmarket.dao.mysql.model.consumer.Consumer">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_name" jdbcType="VARCHAR" property="userName" />
+    <result column="team_pos_code" jdbcType="VARCHAR" property="teamPosCode" />
+    <result column="account" jdbcType="VARCHAR" property="account" />
+    <result column="pass_word" jdbcType="VARCHAR" property="passWord" />
+    <result column="phone_no" jdbcType="VARCHAR" property="phoneNo" />
+    <result column="referee" jdbcType="INTEGER" property="referee" />
+    <result column="email" jdbcType="VARCHAR" property="email" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="left_code" jdbcType="VARCHAR" property="leftCode" />
+    <result column="right_code" jdbcType="VARCHAR" property="rightCode" />
+    <result column="isleaf" jdbcType="VARCHAR" property="isleaf" />
+    <result column="delete_flag" jdbcType="VARCHAR" property="deleteFlag" />
+    <result column="referee_code" jdbcType="VARCHAR" property="refereeCode" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.flc.coinmarket.dao.mysql.model.consumer.ConsumerWithBLOBs">
+    <result column="full_path" jdbcType="LONGVARCHAR" property="fullPath" />
+    <result column="path_direction" jdbcType="LONGVARCHAR" property="pathDirection" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, user_name, team_pos_code, account, pass_word, phone_no, referee, email, create_time, 
+    update_time, left_code, right_code, isleaf, delete_flag, referee_code
+  </sql>
+  <sql id="Blob_Column_List">
+    full_path, path_direction
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="com.flc.coinmarket.dao.mysql.model.consumer.ConsumerExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from consumer
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="com.flc.coinmarket.dao.mysql.model.consumer.ConsumerExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from consumer
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from consumer
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from consumer
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.flc.coinmarket.dao.mysql.model.consumer.ConsumerExample">
+    delete from consumer
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.flc.coinmarket.dao.mysql.model.consumer.ConsumerWithBLOBs">
+    insert into consumer (id, user_name, team_pos_code, 
+      account, pass_word, phone_no, 
+      referee, email, create_time, 
+      update_time, left_code, right_code, 
+      isleaf, delete_flag, referee_code, 
+      full_path, path_direction)
+    values (#{id,jdbcType=INTEGER}, #{userName,jdbcType=VARCHAR}, #{teamPosCode,jdbcType=VARCHAR}, 
+      #{account,jdbcType=VARCHAR}, #{passWord,jdbcType=VARCHAR}, #{phoneNo,jdbcType=VARCHAR}, 
+      #{referee,jdbcType=INTEGER}, #{email,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP}, #{leftCode,jdbcType=VARCHAR}, #{rightCode,jdbcType=VARCHAR}, 
+      #{isleaf,jdbcType=VARCHAR}, #{deleteFlag,jdbcType=VARCHAR}, #{refereeCode,jdbcType=VARCHAR}, 
+      #{fullPath,jdbcType=LONGVARCHAR}, #{pathDirection,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.flc.coinmarket.dao.mysql.model.consumer.ConsumerWithBLOBs">
+    <selectKey keyColumn="id" keyProperty="id" order="AFTER"
+               resultType="int">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into consumer
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="userName != null">
+        user_name,
+      </if>
+      <if test="teamPosCode != null">
+        team_pos_code,
+      </if>
+      <if test="account != null">
+        account,
+      </if>
+      <if test="passWord != null">
+        pass_word,
+      </if>
+      <if test="phoneNo != null">
+        phone_no,
+      </if>
+      <if test="referee != null">
+        referee,
+      </if>
+      <if test="email != null">
+        email,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="leftCode != null">
+        left_code,
+      </if>
+      <if test="rightCode != null">
+        right_code,
+      </if>
+      <if test="isleaf != null">
+        isleaf,
+      </if>
+      <if test="deleteFlag != null">
+        delete_flag,
+      </if>
+      <if test="refereeCode != null">
+        referee_code,
+      </if>
+      <if test="fullPath != null">
+        full_path,
+      </if>
+      <if test="pathDirection != null">
+        path_direction,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="userName != null">
+        #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="teamPosCode != null">
+        #{teamPosCode,jdbcType=VARCHAR},
+      </if>
+      <if test="account != null">
+        #{account,jdbcType=VARCHAR},
+      </if>
+      <if test="passWord != null">
+        #{passWord,jdbcType=VARCHAR},
+      </if>
+      <if test="phoneNo != null">
+        #{phoneNo,jdbcType=VARCHAR},
+      </if>
+      <if test="referee != null">
+        #{referee,jdbcType=INTEGER},
+      </if>
+      <if test="email != null">
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="leftCode != null">
+        #{leftCode,jdbcType=VARCHAR},
+      </if>
+      <if test="rightCode != null">
+        #{rightCode,jdbcType=VARCHAR},
+      </if>
+      <if test="isleaf != null">
+        #{isleaf,jdbcType=VARCHAR},
+      </if>
+      <if test="deleteFlag != null">
+        #{deleteFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="refereeCode != null">
+        #{refereeCode,jdbcType=VARCHAR},
+      </if>
+      <if test="fullPath != null">
+        #{fullPath,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="pathDirection != null">
+        #{pathDirection,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.flc.coinmarket.dao.mysql.model.consumer.ConsumerExample" resultType="java.lang.Long">
+    select count(*) from consumer
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update consumer
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.userName != null">
+        user_name = #{record.userName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.teamPosCode != null">
+        team_pos_code = #{record.teamPosCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.account != null">
+        account = #{record.account,jdbcType=VARCHAR},
+      </if>
+      <if test="record.passWord != null">
+        pass_word = #{record.passWord,jdbcType=VARCHAR},
+      </if>
+      <if test="record.phoneNo != null">
+        phone_no = #{record.phoneNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.referee != null">
+        referee = #{record.referee,jdbcType=INTEGER},
+      </if>
+      <if test="record.email != null">
+        email = #{record.email,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateTime != null">
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.leftCode != null">
+        left_code = #{record.leftCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.rightCode != null">
+        right_code = #{record.rightCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.isleaf != null">
+        isleaf = #{record.isleaf,jdbcType=VARCHAR},
+      </if>
+      <if test="record.deleteFlag != null">
+        delete_flag = #{record.deleteFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="record.refereeCode != null">
+        referee_code = #{record.refereeCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.fullPath != null">
+        full_path = #{record.fullPath,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.pathDirection != null">
+        path_direction = #{record.pathDirection,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update consumer
+    set id = #{record.id,jdbcType=INTEGER},
+      user_name = #{record.userName,jdbcType=VARCHAR},
+      team_pos_code = #{record.teamPosCode,jdbcType=VARCHAR},
+      account = #{record.account,jdbcType=VARCHAR},
+      pass_word = #{record.passWord,jdbcType=VARCHAR},
+      phone_no = #{record.phoneNo,jdbcType=VARCHAR},
+      referee = #{record.referee,jdbcType=INTEGER},
+      email = #{record.email,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      left_code = #{record.leftCode,jdbcType=VARCHAR},
+      right_code = #{record.rightCode,jdbcType=VARCHAR},
+      isleaf = #{record.isleaf,jdbcType=VARCHAR},
+      delete_flag = #{record.deleteFlag,jdbcType=VARCHAR},
+      referee_code = #{record.refereeCode,jdbcType=VARCHAR},
+      full_path = #{record.fullPath,jdbcType=LONGVARCHAR},
+      path_direction = #{record.pathDirection,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update consumer
+    set id = #{record.id,jdbcType=INTEGER},
+      user_name = #{record.userName,jdbcType=VARCHAR},
+      team_pos_code = #{record.teamPosCode,jdbcType=VARCHAR},
+      account = #{record.account,jdbcType=VARCHAR},
+      pass_word = #{record.passWord,jdbcType=VARCHAR},
+      phone_no = #{record.phoneNo,jdbcType=VARCHAR},
+      referee = #{record.referee,jdbcType=INTEGER},
+      email = #{record.email,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      left_code = #{record.leftCode,jdbcType=VARCHAR},
+      right_code = #{record.rightCode,jdbcType=VARCHAR},
+      isleaf = #{record.isleaf,jdbcType=VARCHAR},
+      delete_flag = #{record.deleteFlag,jdbcType=VARCHAR},
+      referee_code = #{record.refereeCode,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.flc.coinmarket.dao.mysql.model.consumer.ConsumerWithBLOBs">
+    update consumer
+    <set>
+      <if test="userName != null">
+        user_name = #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="teamPosCode != null">
+        team_pos_code = #{teamPosCode,jdbcType=VARCHAR},
+      </if>
+      <if test="account != null">
+        account = #{account,jdbcType=VARCHAR},
+      </if>
+      <if test="passWord != null">
+        pass_word = #{passWord,jdbcType=VARCHAR},
+      </if>
+      <if test="phoneNo != null">
+        phone_no = #{phoneNo,jdbcType=VARCHAR},
+      </if>
+      <if test="referee != null">
+        referee = #{referee,jdbcType=INTEGER},
+      </if>
+      <if test="email != null">
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="leftCode != null">
+        left_code = #{leftCode,jdbcType=VARCHAR},
+      </if>
+      <if test="rightCode != null">
+        right_code = #{rightCode,jdbcType=VARCHAR},
+      </if>
+      <if test="isleaf != null">
+        isleaf = #{isleaf,jdbcType=VARCHAR},
+      </if>
+      <if test="deleteFlag != null">
+        delete_flag = #{deleteFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="refereeCode != null">
+        referee_code = #{refereeCode,jdbcType=VARCHAR},
+      </if>
+      <if test="fullPath != null">
+        full_path = #{fullPath,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="pathDirection != null">
+        path_direction = #{pathDirection,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.flc.coinmarket.dao.mysql.model.consumer.ConsumerWithBLOBs">
+    update consumer
+    set user_name = #{userName,jdbcType=VARCHAR},
+      team_pos_code = #{teamPosCode,jdbcType=VARCHAR},
+      account = #{account,jdbcType=VARCHAR},
+      pass_word = #{passWord,jdbcType=VARCHAR},
+      phone_no = #{phoneNo,jdbcType=VARCHAR},
+      referee = #{referee,jdbcType=INTEGER},
+      email = #{email,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      left_code = #{leftCode,jdbcType=VARCHAR},
+      right_code = #{rightCode,jdbcType=VARCHAR},
+      isleaf = #{isleaf,jdbcType=VARCHAR},
+      delete_flag = #{deleteFlag,jdbcType=VARCHAR},
+      referee_code = #{refereeCode,jdbcType=VARCHAR},
+      full_path = #{fullPath,jdbcType=LONGVARCHAR},
+      path_direction = #{pathDirection,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.flc.coinmarket.dao.mysql.model.consumer.Consumer">
+    update consumer
+    set user_name = #{userName,jdbcType=VARCHAR},
+      team_pos_code = #{teamPosCode,jdbcType=VARCHAR},
+      account = #{account,jdbcType=VARCHAR},
+      pass_word = #{passWord,jdbcType=VARCHAR},
+      phone_no = #{phoneNo,jdbcType=VARCHAR},
+      referee = #{referee,jdbcType=INTEGER},
+      email = #{email,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      left_code = #{leftCode,jdbcType=VARCHAR},
+      right_code = #{rightCode,jdbcType=VARCHAR},
+      isleaf = #{isleaf,jdbcType=VARCHAR},
+      delete_flag = #{deleteFlag,jdbcType=VARCHAR},
+      referee_code = #{refereeCode,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="queryLeafCustomerByLeftCode"
+          resultType="com.flc.coinmarket.dao.mysql.model.consumer.ConsumerWithBLOBs">
+        SELECT
+           id,
+           user_name userName,
+           team_pos_code teamPosCode,
+           account account,
+           pass_word passWord,
+           phone_no phoneNo,
+           referee referee,
+           email email,
+           create_time createTime,
+           update_time updateTime,
+           full_path fullPath,
+           path_direction pathDirection,
+           isleaf,delete_flag deleteFlag,
+           referee_code refereeCode
+        FROM
+        (SELECT SUBSTRING(path_direction,#{length}) pathd,id, user_name,team_pos_code,
+        account,pass_word,phone_no, referee,email,create_time, update_time,
+        full_path,path_direction,isleaf,delete_flag,referee_code  FROM consumer ) a
+        WHERE pathd NOT LIKE '%R%'and isleaf='1' and path_direction like #{pathD}  AND full_path LIKE #{refereeFullPath};
+  </select>
+  <select id="selectConsumerInfo" parameterType="com.flc.coinmarket.dao.pojo.ConsumerQuery" resultType="com.flc.coinmarket.dao.vo.ConsumerInfoVO">
+    SELECT * FROM (
+    SELECT
+    c.id,
+    c.user_name userName,
+    c.phone_no phoneNo,
+    ifnull(a.floating_funds,0)+ifnull(a.profits_funds,0)+ifnull(a.lockrepo_funds,0) totalFunds,
+    a.floating_funds floatingFunds,
+    a.lockrepo_funds lockrepoFunds,
+    a.profits_funds profitsFunds,
+    c.create_time createTime,
+    MAX(h.created_time) lastLoginTime,
+    s.nick_name nickName,
+    c.delete_flag,c.referee,ifnull(sr.nick_name,co.account) refNickName,
+    ifnull(sl.nick_name,lc.account)  leftNickName,
+    ifnull(srr.nick_name,rc.account)  rightNickName
+    FROM consumer c
+    LEFT JOIN consumer_capital_account a ON c.id=a.consumer_id
+    LEFT JOIN consumer_login_history  h ON c.id=h.consumer_id
+    LEFT JOIN consumer_settings s ON c.id=s.consumer_id
+    LEFT JOIN consumer_settings sr on c.referee=sr.consumer_id
+    LEFT JOIN consumer co on c.referee=co.id
+    LEFT JOIN consumer lc on c.left_code=lc.team_pos_code
+    LEFT JOIN consumer_settings sl on lc.id=sl.consumer_id
+    LEFT JOIN consumer rc on c.right_code=rc.team_pos_code
+    LEFT JOIN consumer_settings srr on rc.id=srr.consumer_id
+    GROUP BY c.id) a
+    where 1=1 and delete_flag="0"
+    <if test="phoneNo != null">
+      and phoneNo  like #{phoneNo}"%"
+    </if>
+    <if test="nickName != null">
+      AND nickName LIKE "%"#{nickName}"%"
+    </if>
+    <if test="totalCapitalMin != null">
+      and totalFunds >= #{totalCapitalMin}
+    </if>
+    <if test="totalCapitalMax != null">
+      and  #{totalCapitalMax}>=totalFunds
+    </if>
+    <if test="registryTimeFrom != null">
+      and createTime >= #{registryTimeFrom}
+    </if>
+    <if test="registryTimeTo != null">
+      and #{registryTimeTo}>=createTime
+    </if>
+    ORDER BY createTime DESC
+  </select>
+
+  <select id="selectConsumerMember" parameterType="String" resultType="com.flc.coinmarket.dao.vo.ConsumerInfoVO">
+        SELECT
+        c.id,
+        c.user_name userName,
+        c.phone_no phoneNo,
+        SUM(a.floating_funds+a.lockrepo_funds+a.profits_funds) totalFunds,
+        a.floating_funds floatingFunds,
+        a.lockrepo_funds lockrepoFunds,
+        a.profits_funds profitsFunds,
+        c.create_time createTime,
+        full_path,
+        s.nick_name nickName
+        FROM consumer c
+        LEFT JOIN consumer_capital_account a ON c.id=a.consumer_id
+        LEFT JOIN  consumer_settings s ON c.id=s.consumer_id
+        WHERE full_path LIKE #{fullPath}   GROUP BY c.create_time
+    </select>
+  <select id="selectMaxTeamPostCode" resultType="string">
+      SELECT team_pos_code
+      FROM consumer WHERE
+      id=(SELECT MAX(id) FROM consumer)
+    </select>
+
+</mapper>
