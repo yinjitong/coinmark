@@ -2,7 +2,6 @@ package com.flc.coinmarket.app.service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.flc.coinmarket.app.controller.ConsumerController;
 import com.flc.coinmarket.app.volidate.DateValidate;
 import com.flc.coinmarket.core.constant.Constants;
 import com.flc.coinmarket.core.util.*;
@@ -416,7 +415,7 @@ public class ConsumerService {
         ConsumerWalletVO consumerWalletVO = new ConsumerWalletVO(BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO
                 , BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO,
                 BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO,
-                "", "", "0", BigDecimal.ZERO);
+                "", "", "0", BigDecimal.ZERO,BigDecimal.ZERO);
         //查询用户总资产,锁仓资产，流动资产，收益资产
         ConsumerCapitalAccountExample example = new ConsumerCapitalAccountExample();
         example.createCriteria().andConsumerIdEqualTo(id);
@@ -464,6 +463,13 @@ public class ConsumerService {
             BigDecimal paramValue = sysParameter.getParamValue();
             consumerWalletVO.setTranceFee(paramValue);
         }
+        //锁仓资产每日释放比例
+        SysParameter sysParameter1= sysParameterMapper.selectByPrimaryKey(2);
+        if (sysParameter1 != null) {
+            BigDecimal paramValue = sysParameter.getParamValue();
+            consumerWalletVO.setReleaseLockrepoRatio(paramValue);
+        }
+
         response.setData(consumerWalletVO);
         response.setResponseCode(ResponseCode.OK.getCode());
         response.setResponseMsg(ResponseCode.OK.getMessage());
