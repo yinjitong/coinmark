@@ -39,12 +39,14 @@ public class ConsumerWalletVO {
     private String lockReleseFlag;
     @ApiModelProperty(name = "tranceFee", value = "交易手续费", example = "0。05")
     private BigDecimal tranceFee;
+    @ApiModelProperty(name = "releaseLockrepoRatio", value = "交易手续费", example = "0。05")
+    private BigDecimal releaseLockrepoRatio;
 
 
     public ConsumerWalletVO() {
     }
 
-    public ConsumerWalletVO(BigDecimal totalFunds, BigDecimal lockrepoFunds, BigDecimal profitsFunds, BigDecimal floatingFunds, BigDecimal profitsLockrepo, BigDecimal profitsReferee, BigDecimal profitsTeam, BigDecimal profitsLockrepoDaily, BigDecimal profitsRefereeDaily, BigDecimal profitsTeamDaily, BigDecimal leftTotalFunds, BigDecimal rightTotalFunds, String leftDimesionCode, String rightDimesionCode,String lockReleseFlag,BigDecimal tranceFee) {
+    public ConsumerWalletVO(BigDecimal totalFunds, BigDecimal lockrepoFunds, BigDecimal profitsFunds, BigDecimal floatingFunds, BigDecimal profitsLockrepo, BigDecimal profitsReferee, BigDecimal profitsTeam, BigDecimal profitsLockrepoDaily, BigDecimal profitsRefereeDaily, BigDecimal profitsTeamDaily, BigDecimal leftTotalFunds, BigDecimal rightTotalFunds, String leftDimesionCode, String rightDimesionCode,String lockReleseFlag,BigDecimal tranceFee,BigDecimal releaseLockrepoRatio) {
         this.totalFunds = totalFunds;
         this.lockrepoFunds = lockrepoFunds;
         this.profitsFunds = profitsFunds;
@@ -61,6 +63,7 @@ public class ConsumerWalletVO {
         this.rightDimesionCode = rightDimesionCode;
         this.lockReleseFlag=lockReleseFlag;
         this.tranceFee=tranceFee;
+        this.releaseLockrepoRatio=releaseLockrepoRatio;
     }
 
     public BigDecimal getTranceFee() {
@@ -191,6 +194,11 @@ public class ConsumerWalletVO {
         this.lockReleseFlag = lockReleseFlag;
     }
 
+    public BigDecimal getReleaseLockrepoRatio() {
+        return releaseLockrepoRatio;
+    }
 
-
+    public void setReleaseLockrepoRatio(BigDecimal releaseLockrepoRatio) {
+        this.releaseLockrepoRatio = releaseLockrepoRatio;
+    }
 }
