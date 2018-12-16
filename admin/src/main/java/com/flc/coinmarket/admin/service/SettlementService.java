@@ -16,7 +16,7 @@ public class SettlementService {
 	public BigDecimal teamProfit(ConsumerCapitalAccount account, List<ConsumerCapitalAccount> leftTeam, List<ConsumerCapitalAccount> rightTeam,
 							 List<ProfitsRatio> teamParamList, BigDecimal ratioLimit) {
 
-		BigDecimal[] limitAndRatio = getRatio(account.getLockrepoFunds().compareTo(ratioLimit) > -1 ? ratioLimit : account.getLockrepoFunds(), teamParamList);
+		BigDecimal[] limitAndRatio = getRatio(account.getLockrepoFunds(), teamParamList);
 		BigDecimal l = teamProfitCalculate(leftTeam, limitAndRatio[0]);
 		BigDecimal r = teamProfitCalculate(rightTeam, limitAndRatio[0]);
 		BigDecimal result = l.compareTo(r) > -1 ? r : l;
@@ -27,7 +27,7 @@ public class SettlementService {
 	public BigDecimal lockProfit(ConsumerCapitalAccount account, List<ProfitsRatio> lockParamList, BigDecimal ratioLimit) {
 		if (account == null)
 			return BigDecimal.ZERO;
-		BigDecimal[] d = getRatio(account.getLockrepoFunds().compareTo(ratioLimit) > -1 ? ratioLimit : account.getLockrepoFunds(), lockParamList);
+		BigDecimal[] d = getRatio(account.getLockrepoFunds(), lockParamList);
 		return account.getLockrepoFunds().multiply(d[1]);
 	}
 
@@ -89,6 +89,10 @@ public class SettlementService {
 		if (congigList == null || congigList.size() == 0)
 			return result;
 		for (ProfitsRatio r : congigList) {
+			//如果最大值配置为0，则按Double最大值计算
+			if(r.getUpperLimit().equals(new BigDecimal(0)))
+				r.setUpperLimit(new BigDecimal(Double.MAX_VALUE));
+
 			if (amount .compareTo(r.getLowerLimit())>-1  && amount .compareTo(r.getUpperLimit())<1){
 				result[0] = r.getCardinalNumber();
 				result[1] = r.getRatio();
