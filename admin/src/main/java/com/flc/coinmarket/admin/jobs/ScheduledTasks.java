@@ -43,7 +43,7 @@ public class ScheduledTasks{
     @Autowired
     ScheduledTaskService scheduledTaskService;
 
-    @Scheduled(cron = "* * 0-6 * * ? ")
+    @Scheduled(cron = "* * 1-6 * * ? ")
 //    @Scheduled(initialDelay = 10000L, fixedDelay = 1000000000000000000L)
     public void autoRunMethod(){
         teamProfits();
