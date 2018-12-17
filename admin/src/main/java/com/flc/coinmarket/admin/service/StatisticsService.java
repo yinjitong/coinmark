@@ -23,10 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class StatisticsService {
@@ -464,8 +461,8 @@ public class StatisticsService {
         return baseResponse;
     }
 
-    public BaseResponse<BigDecimal> coinCurrent() {
-        BaseResponse<BigDecimal> response = new BaseResponse<>();
+    public BaseResponse coinCurrent() {
+        BaseResponse response = new BaseResponse<>();
         BigDecimal coinPriceBig = BigDecimal.ZERO;
         SysDictionaryExample dictionaryExample = new SysDictionaryExample();
         dictionaryExample.createCriteria().andDicCodeEqualTo("current_price");
@@ -480,7 +477,9 @@ public class StatisticsService {
         // 获取比例值增量
         SysParameter coinIncr = sysParameterMapper.selectByPrimaryKey(10);
         BigDecimal currentPrice = coinPriceBig.add(coinIncr.getParamValue());
-        response.setData(currentPrice);
+        Map map =new HashMap<>();
+        map.put("currentPrice",currentPrice);
+        response.setData(map);
         response.setResponseCode(ResponseCode.OK.getCode());
         response.setResponseMsg(ResponseCode.OK.getMessage());
         return response;
