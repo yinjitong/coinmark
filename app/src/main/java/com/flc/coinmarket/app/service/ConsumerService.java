@@ -286,7 +286,6 @@ public class ConsumerService {
         consumerWithBLOBs.setDeleteFlag("0");
         consumerMapper.insertSelective(consumerWithBLOBs);
 
-
         //TODO 记录客户二维码
         ConsumerTwoDimensionCodeWithBLOBs consumerTwoDimensionCodeWithBLOBs = new ConsumerTwoDimensionCodeWithBLOBs();
         consumerTwoDimensionCodeWithBLOBs.setConsumerId(consumerWithBLOBs.getId());
@@ -319,6 +318,7 @@ public class ConsumerService {
         ConsumerSettings consumerSettings = new ConsumerSettings();
         consumerSettings.setConsumerId(consumerWithBLOBs.getId());
         consumerSettings.setAutoTransfer("0");//否
+        consumerSettings.setNickName(consumerRegist.getPhoneNo());
         consumerSettings.setHeadPortrait("/images/head.jpg");
         consumerSettingsMapper.insertSelective(consumerSettings);
 
