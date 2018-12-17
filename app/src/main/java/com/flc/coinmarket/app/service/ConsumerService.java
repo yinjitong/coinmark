@@ -262,7 +262,7 @@ public class ConsumerService {
             ConsumerWithBLOBs consumerLeaf = consumerMapper.queryLeafCustomerByLeftCode(refereeConsumer.get(0).getPathDirection().length() + 1,
                     refereeConsumer.get(0).getPathDirection() + "%", refereeConsumer.get(0).getFullPath() + "%");
 
-            logger.info(consumerLeaf.getId()+"..."+consumerLeaf.getDeleteFlag());
+            logger.info(consumerLeaf.getId() + "..." + consumerLeaf.getDeleteFlag());
             if (consumerLeaf == null) {//节点即为叶子节点
                 consumerLeaf = refereeConsumer.get(0);
             }
@@ -415,7 +415,7 @@ public class ConsumerService {
         ConsumerWalletVO consumerWalletVO = new ConsumerWalletVO(BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO
                 , BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO,
                 BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO,
-                "", "", "0", BigDecimal.ZERO,BigDecimal.ZERO);
+                "", "", "0", BigDecimal.ZERO, BigDecimal.ZERO);
         //查询用户总资产,锁仓资产，流动资产，收益资产
         ConsumerCapitalAccountExample example = new ConsumerCapitalAccountExample();
         example.createCriteria().andConsumerIdEqualTo(id);
@@ -428,7 +428,7 @@ public class ConsumerService {
             consumerWalletVO.setProfitsFunds(consumerCapitalAccounts.get(0).getProfitsFunds());
             consumerWalletVO.setLockReleseFlag(consumerCapitalAccounts.get(0).getReleaseFlag());
         }
-        String todayYMD= DateUtil.getTodayYMD();
+        String yesterdayYMD = DateUtil.getYesterdayYMD();
         //查询用户锁仓收益，用户推荐收益，用户团队收益
         ConsumerProfitsTotal consumerProfitsTotal = consumerProfitsTotalMapper.selectConsumerProfitsTotal(id);
         if (consumerProfitsTotal != null) {
@@ -437,18 +437,17 @@ public class ConsumerService {
             consumerWalletVO.setProfitsLockrepo(consumerProfitsTotal.getProfitsLockrepo());
         }
         //查询用户昨日锁仓收益，用户昨日推荐收益，用户昨日团队收益
-        ConsumerProfitsDaily consumerProfitsDaily = consumerProfitsDailyMapper.selectYestodayConsumerProfitsDaily(id,todayYMD+"%");
+        ConsumerProfitsDaily consumerProfitsDaily = consumerProfitsDailyMapper.selectYestodayConsumerProfitsDaily(id, yesterdayYMD + "%");
         if (consumerProfitsDaily != null) {
             consumerWalletVO.setProfitsLockrepoDaily(consumerProfitsDaily.getProfitsLockrepo());
             consumerWalletVO.setProfitsRefereeDaily(consumerProfitsDaily.getProfitsReferee());
             consumerWalletVO.setProfitsTeamDaily(consumerProfitsDaily.getProfitsTeam());
         }
         //团队一资产，团队二资产
-        ConsumerTeam consumerTeam = consumerTeamMapper.selectConsumerTeam(id);
-        if (consumerTeam!=null) {
-            consumerWalletVO.setLeftTotalFunds(consumerTeam.getLeftLockrepoTotal());
-            consumerWalletVO.setRightTotalFunds(consumerTeam.getRightLockrepoTotal());
-        }
+        BigDecimal leftFunds = consumerTeamMapper.selectLeftFunds(id);
+        BigDecimal rightFunds = consumerTeamMapper.selectRightFunds(id);
+        consumerWalletVO.setLeftTotalFunds(leftFunds);
+        consumerWalletVO.setRightTotalFunds(rightFunds);
         //团队一推荐码，团队二推荐码
         ConsumerTwoDimensionCodeExample consumerTwoDimensionCodeExample = new ConsumerTwoDimensionCodeExample();
         consumerTwoDimensionCodeExample.createCriteria().andConsumerIdEqualTo(id);
@@ -464,7 +463,7 @@ public class ConsumerService {
             consumerWalletVO.setTranceFee(paramValue);
         }
         //锁仓资产每日释放比例
-        SysParameter sysParameter1= sysParameterMapper.selectByPrimaryKey(2);
+        SysParameter sysParameter1 = sysParameterMapper.selectByPrimaryKey(2);
         if (sysParameter1 != null) {
             BigDecimal paramValue = sysParameter1.getParamValue();
             consumerWalletVO.setReleaseLockrepoRatio(paramValue);
@@ -564,13 +563,13 @@ public class ConsumerService {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date sStartDate = sdf.parse(startDate);
         Date sEndDate = sdf.parse(endDate);
-        Calendar c=Calendar.getInstance();
+        Calendar c = Calendar.getInstance();
         c.setTime(sEndDate);
         c.add(Calendar.DAY_OF_YEAR, 1);
 
         ConsumerProfitsDailyExample example = new ConsumerProfitsDailyExample();
         ConsumerProfitsDailyExample.Criteria criteria = example.createCriteria();
-        criteria.andCreatedTimeBetween(sStartDate,c.getTime());
+        criteria.andCreatedTimeBetween(sStartDate, c.getTime());
 
         criteria.andConsumerIdEqualTo(id);
         example.setOrderByClause("created_time asc");

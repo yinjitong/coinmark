@@ -4,6 +4,7 @@ import com.flc.coinmarket.dao.mysql.model.consumer.Consumer;
 import com.flc.coinmarket.dao.mysql.model.consumer.ConsumerTeam;
 import com.flc.coinmarket.dao.mysql.model.consumer.ConsumerTeamExample;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.zip.DataFormatException;
@@ -48,4 +49,9 @@ public interface ConsumerTeamMapper {
                                                  @Param("startDate")Date startDate, @Param("endDate") Date endDate);
 
     ConsumerTeam selectConsumerTeam(@Param("consumerId")Integer consumerId);
+
+    BigDecimal selectLeftFunds(@Param("consumerId")Integer consumerId);
+
+    BigDecimal selectRightFunds(@Param("consumerId")Integer consumerId);
+
 }

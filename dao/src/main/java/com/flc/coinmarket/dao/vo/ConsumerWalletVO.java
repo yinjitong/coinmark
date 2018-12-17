@@ -39,7 +39,7 @@ public class ConsumerWalletVO {
     private String lockReleseFlag;
     @ApiModelProperty(name = "tranceFee", value = "交易手续费", example = "0。05")
     private BigDecimal tranceFee;
-    @ApiModelProperty(name = "releaseLockrepoRatio", value = "交易手续费", example = "0。05")
+    @ApiModelProperty(name = "releaseLockrepoRatio", value = "自动复投锁仓资产资金", example = "0。05")
     private BigDecimal releaseLockrepoRatio;
 
 

@@ -439,5 +439,13 @@
 		and date_format(created_time,'%Y-%m-%d') =
 		(select max(date_format(created_time,'%Y-%m-%d')) FROM consumer_team where consumer_id =  #{consumerId})
   </select>
+  <select id="selectLeftFunds" parameterType="int" resultType="BigDecimal">
+    select ifnull(sum(ifnull(floating_funds,0)+ifnull(lockrepo_funds,0)+ifnull(profits_funds,0)),0)  leftTotalFunds from consumer_capital_account a, consumer l, consumer c
+    where a.consumer_id = l.id and instr(l.full_path, concat(c.full_path, c.left_code)) > 0 and c.id =#{consumerId}
+  </select>
+  <select id="selectRightFunds" parameterType="int" resultType="BigDecimal">
+     select ifnull(sum(ifnull(floating_funds,0)+ifnull(lockrepo_funds,0)+ifnull(profits_funds,0)),0) rightTotalFunds from consumer_capital_account a, consumer r, consumer c
+     where a.consumer_id = r.id and instr(r.full_path, concat(c.full_path, c.right_code)) > 0 and c.id =#{consumerId}
+  </select>
 
 </mapper>
