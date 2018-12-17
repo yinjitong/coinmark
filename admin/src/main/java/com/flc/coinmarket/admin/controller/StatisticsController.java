@@ -21,10 +21,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.ServletOutputStream;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -306,6 +308,21 @@ public class StatisticsController {
         BaseResponse<List<LockrepoDestroyDaily>> response;
         try {
             response = statisticsService.destroyDaily(startDate,endDate);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response = new BaseResponse<>();
+            logger.error(e.getMessage());
+            response.setResponseMsg(ResponseCode.SERVER_FAILED.getMessage());
+            response.setResponseCode(ResponseCode.SERVER_FAILED.getCode());
+        }
+        return response;
+    }
+    @PostMapping("coinCurrent")
+    @ApiOperation(value = "获取现价", notes = "获取现价", tags = "首页", httpMethod = "POST")
+    public BaseResponse<BigDecimal> coinCurrent() {
+        BaseResponse<BigDecimal> response;
+        try {
+            response = statisticsService.coinCurrent();
         } catch (Exception e) {
             e.printStackTrace();
             response = new BaseResponse<>();

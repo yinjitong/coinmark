@@ -10,12 +10,18 @@ import com.flc.coinmarket.dao.mongo.model.ConsumerTranceDetail;
 import com.flc.coinmarket.dao.mysql.mapper.consumer.ConsumerCapitalAccountMapper;
 import com.flc.coinmarket.dao.mysql.mapper.consumer.ConsumerTeamMapper;
 import com.flc.coinmarket.dao.mysql.mapper.statistics.*;
+import com.flc.coinmarket.dao.mysql.mapper.system.SysDictionaryMapper;
+import com.flc.coinmarket.dao.mysql.mapper.system.SysParameterMapper;
 import com.flc.coinmarket.dao.mysql.model.statistics.*;
+import com.flc.coinmarket.dao.mysql.model.system.SysDictionary;
+import com.flc.coinmarket.dao.mysql.model.system.SysDictionaryExample;
+import com.flc.coinmarket.dao.mysql.model.system.SysParameter;
 import com.flc.coinmarket.dao.vo.ConsumerTeamVO;
 import com.flc.coinmarket.dao.vo.EchartsPieVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -50,6 +56,11 @@ public class StatisticsService {
     private ConsumerCapitalAccountMapper consumerCapitalAccountMapper;
     @Autowired
     private ConsumerTranceDetailDAO consumerTranceDetailDAO;
+    @Autowired
+    private SysDictionaryMapper sysDictionaryMapper;
+    @Autowired
+    private SysParameterMapper sysParameterMapper;
+
 
 
     /**
@@ -451,5 +462,28 @@ public class StatisticsService {
         baseResponse.setResponseCode(ResponseCode.OK.getCode());
         baseResponse.setResponseMsg(ResponseCode.OK.getMessage());
         return baseResponse;
+    }
+
+    public BaseResponse<BigDecimal> coinCurrent() {
+        BaseResponse<BigDecimal> response = new BaseResponse<>();
+        BigDecimal coinPriceBig = BigDecimal.ZERO;
+        SysDictionaryExample dictionaryExample = new SysDictionaryExample();
+        dictionaryExample.createCriteria().andDicCodeEqualTo("current_price");
+        List<SysDictionary> coinPriceDictionaries = sysDictionaryMapper.selectByExample(dictionaryExample);
+        if (coinPriceDictionaries.size() == 0 || coinPriceDictionaries.get(0) == null||coinPriceDictionaries.get(0) .getDicValue().equals("0")) {
+            // 获取比例值基数
+            SysParameter coinPrice = sysParameterMapper.selectByPrimaryKey(9);
+            coinPriceBig = coinPrice.getParamValue();
+        }else{
+            coinPriceBig=new BigDecimal(Integer.parseInt(coinPriceDictionaries.get(0).getDicValue()));
+        }
+        // 获取比例值增量
+        SysParameter coinIncr = sysParameterMapper.selectByPrimaryKey(10);
+        BigDecimal currentPrice = coinPriceBig.add(coinIncr.getParamValue());
+        response.setData(currentPrice);
+        response.setResponseCode(ResponseCode.OK.getCode());
+        response.setResponseMsg(ResponseCode.OK.getMessage());
+        return response;
+
     }
 }

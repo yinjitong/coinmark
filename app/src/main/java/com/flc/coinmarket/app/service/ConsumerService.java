@@ -657,21 +657,33 @@ public class ConsumerService {
             response.setResponseCode(ResponseCode.NOT_HAVE_PUBDATE.getCode());
             return response;
         }
-        String dicValue = sysDictionaries.get(0).getDicValue();//上线日期
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Date publicDate = sdf.parse(dicValue);
-        Date today = new Date();
-        int dayCount = DateUtil.differentDays(publicDate, today);
-        //TODO 获取比例值增量
-//        sysParameterMapper.selectByExample();
+//        String dicValue = sysDictionaries.get(0).getDicValue();//上线日期
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+//        Date publicDate = sdf.parse(dicValue);
+//        Date today = new Date();
+//        int dayCount = DateUtil.differentDays(publicDate, today);
+//        BigDecimal currentPrice = BigDecimal.ONE.add(new BigDecimal(0.01).multiply(new BigDecimal(dayCount)));
+//        BigDecimal currentPriceB = currentPrice.setScale(2, RoundingMode.HALF_UP);
+//        consumerAppVO.setCurrentPrice(currentPriceB);//现价
+        //获取现价
+        SysDictionaryExample dictionaryExample = new SysDictionaryExample();
+        dictionaryExample.createCriteria().andDicCodeEqualTo("current_price");
+        List<SysDictionary> coinPriceDictionaries = sysDictionaryMapper.selectByExample(dictionaryExample);
 
-        //TODO 获取比例值基数
-//        sysParameterMapper.selectByExample();
+        BigDecimal coinPriceBig = BigDecimal.ZERO;
+        if (coinPriceDictionaries.size() == 0 || coinPriceDictionaries.get(0) == null||coinPriceDictionaries.get(0) .getDicValue().equals("0")) {
+            // 获取比例值基数
+            SysParameter coinPrice = sysParameterMapper.selectByPrimaryKey(9);
+            coinPriceBig = coinPrice.getParamValue();
+        }else{
+            coinPriceBig=new BigDecimal(Integer.parseInt(coinPriceDictionaries.get(0).getDicValue()));
+        }
+        // 获取比例值增量
+        SysParameter coinIncr = sysParameterMapper.selectByPrimaryKey(10);
+        BigDecimal currentPrice = coinPriceBig.add(coinIncr.getParamValue());
 
-
-        BigDecimal currentPrice = BigDecimal.ONE.add(new BigDecimal(0.01).multiply(new BigDecimal(dayCount)));
-        BigDecimal currentPriceB = currentPrice.setScale(2, RoundingMode.HALF_UP);
-        consumerAppVO.setCurrentPrice(currentPriceB);//现价
+        //最终价格
+        consumerAppVO.setCurrentPrice(currentPrice);
 
         response.setData(consumerAppVO);
         response.setResponseMsg(ResponseCode.OK.getMessage());

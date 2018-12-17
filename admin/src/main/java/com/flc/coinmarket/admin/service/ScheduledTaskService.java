@@ -708,6 +708,27 @@ public class ScheduledTaskService {
         if (!consumerTeams.isEmpty()) {
             consumerTeamMapper.batchInsert(consumerTeams);
         }
+
+        //更新现价
+        BigDecimal coinPriceBig = BigDecimal.ZERO;
+        SysDictionaryExample dictionaryExample = new SysDictionaryExample();
+        dictionaryExample.createCriteria().andDicCodeEqualTo("current_price");
+        List<SysDictionary> coinPriceDictionaries = sysDictionaryMapper.selectByExample(dictionaryExample);
+        if (coinPriceDictionaries.size() == 0 || coinPriceDictionaries.get(0) == null||coinPriceDictionaries.get(0) .getDicValue().equals("0")) {
+            // 获取比例值基数
+            SysParameter coinPrice = sysParameterMapper.selectByPrimaryKey(9);
+            coinPriceBig = coinPrice.getParamValue();
+        }else{
+            coinPriceBig=new BigDecimal(Integer.parseInt(coinPriceDictionaries.get(0).getDicValue()));
+        }
+        // 获取比例值增量
+        SysParameter coinIncr = sysParameterMapper.selectByPrimaryKey(10);
+        BigDecimal currentPrice = coinPriceBig.add(coinIncr.getParamValue());
+
+        coinPriceDictionaries.get(0).setDicValue(currentPrice+"");
+        sysDictionaryMapper.updateByPrimaryKey(coinPriceDictionaries.get(0));
+
+
     }
 
     private ConsumerTeam createConsumerTeam(ConsumerTeam leftTeam, ConsumerTeam rightTeam) {
