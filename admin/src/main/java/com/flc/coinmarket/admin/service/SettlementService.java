@@ -77,7 +77,7 @@ public class SettlementService {
             return BigDecimal.ZERO;
         BigDecimal a = BigDecimal.ZERO, c;
         for (ConsumerCapitalAccount consumer : team) {
-            c = consumer.getLockrepoFunds().compareTo(limit) > -1 ? limit : consumer.getLockrepoFunds();
+            c = consumer.getLockrepoFunds();
             a = a.add(c);
         }
         return a;
