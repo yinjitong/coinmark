@@ -14,7 +14,6 @@ import java.util.Date;
 @Entity(connection = "db")
 @ApiModel("用户交易明细")
 public class ConsumerTranceDetail extends SimpleEntity {
-
     @Id
     @ApiModelProperty(name = "id", value = "id", example = "1")
     private String id;
@@ -38,7 +37,16 @@ public class ConsumerTranceDetail extends SimpleEntity {
     private Date updatedTime;
     @ApiModelProperty(name = "transferConsumer", value = "交易对方客户", example = "1")
     private Integer transferConsumer;
-
+    @ApiModelProperty(name = "nickNameFrom", value = "昵称", example = "小红")
+    private String nickNameFrom;
+    @ApiModelProperty(name = "nickNameTo", value = "昵称", example = "小蓝")
+    private String nickNameTo;
+    @ApiModelProperty(name = "phoneNoFrom", value = "转出方手机号", example = "13333333333")
+    private String phoneNoFrom;
+    @ApiModelProperty(name = "phoneNoTo", value = "转入方手机号", example = "13333333333")
+    private String phoneNoTo;
+    @ApiModelProperty(name = "balance", value = "余额", example = "12.000000")
+    private BigDecimal balance;
 
     private static final long serialVersionUID = 1L;
 
@@ -133,6 +141,46 @@ public class ConsumerTranceDetail extends SimpleEntity {
 
     public static long getSerialVersionUID() {
         return serialVersionUID;
+    }
+
+    public String getNickNameFrom() {
+        return nickNameFrom;
+    }
+
+    public void setNickNameFrom(String nickNameFrom) {
+        this.nickNameFrom = nickNameFrom;
+    }
+
+    public String getNickNameTo() {
+        return nickNameTo;
+    }
+
+    public void setNickNameTo(String nickNameTo) {
+        this.nickNameTo = nickNameTo;
+    }
+
+    public String getPhoneNoFrom() {
+        return phoneNoFrom;
+    }
+
+    public void setPhoneNoFrom(String phoneNoFrom) {
+        this.phoneNoFrom = phoneNoFrom;
+    }
+
+    public String getPhoneNoTo() {
+        return phoneNoTo;
+    }
+
+    public void setPhoneNoTo(String phoneNoTo) {
+        this.phoneNoTo = phoneNoTo;
+    }
+
+    public BigDecimal getBalance() {
+        return balance;
+    }
+
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
     }
 
     public String getCreatTime(){
