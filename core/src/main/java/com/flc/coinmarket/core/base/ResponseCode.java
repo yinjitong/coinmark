@@ -55,7 +55,8 @@ public enum ResponseCode {
     LOCKRELESE_HAS_CLOSE(4027,"锁仓资产自动释放已关闭！！！"),
     REINVEST_HAS_OPEN(4028,"自动复投已开启！！！"),
     REINVEST_HAS_CLOSE(4029,"自动复投已关闭！！！"),
-    TOKEN_CREATE_WRONG(4030,"token生成失败！！！")
+    TOKEN_CREATE_WRONG(4030,"token生成失败！！！"),
+    OPPO_SETTING_NOT_HAVE(4031,"对方用户设置信息不存在！！！")
     ;
 
     private int code;

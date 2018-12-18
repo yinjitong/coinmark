@@ -17,6 +17,7 @@ import com.flc.coinmarket.dao.mysql.model.statistics.*;
 import com.flc.coinmarket.dao.mysql.model.system.SysDictionary;
 import com.flc.coinmarket.dao.mysql.model.system.SysDictionaryExample;
 import com.flc.coinmarket.dao.mysql.model.system.SysParameter;
+import com.flc.coinmarket.dao.mysql.model.system.SysParameterExample;
 import com.flc.coinmarket.dao.pojo.*;
 import com.flc.coinmarket.dao.vo.ConsumerAppVO;
 import com.flc.coinmarket.dao.vo.ConsumerWalletVO;
@@ -657,30 +658,35 @@ public class ConsumerService {
             response.setResponseCode(ResponseCode.NOT_HAVE_PUBDATE.getCode());
             return response;
         }
-//        String dicValue = sysDictionaries.get(0).getDicValue();//上线日期
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-//        Date publicDate = sdf.parse(dicValue);
-//        Date today = new Date();
-//        int dayCount = DateUtil.differentDays(publicDate, today);
-//        BigDecimal currentPrice = BigDecimal.ONE.add(new BigDecimal(0.01).multiply(new BigDecimal(dayCount)));
-//        BigDecimal currentPriceB = currentPrice.setScale(2, RoundingMode.HALF_UP);
-//        consumerAppVO.setCurrentPrice(currentPriceB);//现价
-        //获取现价
-        SysDictionaryExample dictionaryExample = new SysDictionaryExample();
-        dictionaryExample.createCriteria().andDicCodeEqualTo("current_price");
-        List<SysDictionary> coinPriceDictionaries = sysDictionaryMapper.selectByExample(dictionaryExample);
 
-        BigDecimal coinPriceBig = BigDecimal.ZERO;
-        if (coinPriceDictionaries.size() == 0 || coinPriceDictionaries.get(0) == null||coinPriceDictionaries.get(0) .getDicValue().equals("0")) {
-            // 获取比例值基数
-            SysParameter coinPrice = sysParameterMapper.selectByPrimaryKey(9);
-            coinPriceBig = coinPrice.getParamValue();
-        }else{
-            coinPriceBig=new BigDecimal(Double.parseDouble(coinPriceDictionaries.get(0).getDicValue()));
+        //获取现价
+        //现价默认为1
+        BigDecimal coinPriceBig = BigDecimal.ONE;
+        //比率值增量默认为0.01
+        BigDecimal coinIncr=new BigDecimal(0.01);
+
+        SysParameterExample sysParameterExample=new SysParameterExample();
+        sysParameterExample.createCriteria().andParamCodeEqualTo("current_price");
+        List<SysParameter> sysParameters = sysParameterMapper.selectByExample(sysParameterExample);
+        if(sysParameters.size()==0||sysParameters.get(0)==null){
+            //现价为空，获取比率值基数
+            SysParameterExample coinPrice = new SysParameterExample();
+            coinPrice.createCriteria().andParamCodeEqualTo("coin_price");
+            List<SysParameter> coinPriceSysParams = sysParameterMapper.selectByExample(coinPrice);
+            if (coinPriceSysParams.size() > 0 && coinPriceSysParams.get(0) != null) {
+                coinPriceBig = coinPriceSysParams.get(0).getParamValue();
+            }
+        }else {
+            coinPriceBig=sysParameters.get(0).getParamValue();
         }
         // 获取比例值增量
-        SysParameter coinIncr = sysParameterMapper.selectByPrimaryKey(10);
-        BigDecimal currentPrice = coinPriceBig.add(coinIncr.getParamValue()).setScale(2,BigDecimal.ROUND_HALF_UP);
+        SysParameterExample coinExample=new SysParameterExample();
+        coinExample.createCriteria().andParamCodeEqualTo("coin_incr");
+        List<SysParameter> coinIncrParams = sysParameterMapper.selectByExample(coinExample);
+        if(coinIncrParams.size()>0&&coinIncrParams.get(0)!=null){
+            coinIncr=coinIncrParams.get(0).getParamValue();
+        }
+        BigDecimal currentPrice = coinPriceBig.add(coinIncr).setScale(2, BigDecimal.ROUND_HALF_UP);
 
         //最终价格
         consumerAppVO.setCurrentPrice(currentPrice);

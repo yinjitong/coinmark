@@ -34,6 +34,20 @@ public class SysParameter implements Serializable {
     @ApiModelProperty(name = "createdTime", value = "创建时间", example = "1")
     private Date createdTime;
 
+    public SysParameter() {
+    }
+
+    public SysParameter(Integer id, String paramCode, String paramName, BigDecimal paramValue, Integer updatedUser, Date updatedTime, Integer createdUser, Date createdTime) {
+        this.id = id;
+        this.paramCode = paramCode;
+        this.paramName = paramName;
+        this.paramValue = paramValue;
+        this.updatedUser = updatedUser;
+        this.updatedTime = updatedTime;
+        this.createdUser = createdUser;
+        this.createdTime = createdTime;
+    }
+
     private static final long serialVersionUID = 1L;
 
     public Integer getId() {

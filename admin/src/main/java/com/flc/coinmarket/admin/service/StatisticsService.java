@@ -16,6 +16,7 @@ import com.flc.coinmarket.dao.mysql.model.statistics.*;
 import com.flc.coinmarket.dao.mysql.model.system.SysDictionary;
 import com.flc.coinmarket.dao.mysql.model.system.SysDictionaryExample;
 import com.flc.coinmarket.dao.mysql.model.system.SysParameter;
+import com.flc.coinmarket.dao.mysql.model.system.SysParameterExample;
 import com.flc.coinmarket.dao.vo.ConsumerTeamVO;
 import com.flc.coinmarket.dao.vo.EchartsPieVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +58,6 @@ public class StatisticsService {
     private SysDictionaryMapper sysDictionaryMapper;
     @Autowired
     private SysParameterMapper sysParameterMapper;
-
 
 
     /**
@@ -200,6 +200,7 @@ public class StatisticsService {
 
     /**
      * 手续费增量趋势
+     *
      * @param startDate
      * @param endDate
      * @return
@@ -226,6 +227,7 @@ public class StatisticsService {
 
     /**
      * 收益销账趋势
+     *
      * @param startDate
      * @param endDate
      * @return
@@ -252,6 +254,7 @@ public class StatisticsService {
 
     /**
      * 日增销账趋势
+     *
      * @param startDate
      * @param endDate
      * @return
@@ -279,16 +282,17 @@ public class StatisticsService {
 
     /**
      * 今日统计-总量-饼状图
+     *
      * @return
      */
     public BaseResponse<List<EchartsPieVO>> capitalTotalPie() {
         BaseResponse<List<EchartsPieVO>> response = new BaseResponse<>();
-        List<EchartsPieVO> echartsPieVOS=new ArrayList<>();
+        List<EchartsPieVO> echartsPieVOS = new ArrayList<>();
 
 //        List<CapitalTotal> capitalTotals = capitalTotalMapper.selectTodayCapitalTotal();
         CapitalTotal capitalTotal = consumerCapitalAccountMapper.selectTotalFunds();
         //当前资产资产用量
-        if(capitalTotal!=null) {
+        if (capitalTotal != null) {
             EchartsPieVO echartsPieVO1 = new EchartsPieVO();
             echartsPieVO1.setName("消费资产");
 
@@ -309,14 +313,15 @@ public class StatisticsService {
 
     /**
      * 昨日资产饼状图
+     *
      * @return
      */
     public BaseResponse<List<EchartsPieVO>> capitalDailyPie() {
         BaseResponse<List<EchartsPieVO>> response = new BaseResponse<>();
-        List<EchartsPieVO> echartsPieVOS=new ArrayList<>();
+        List<EchartsPieVO> echartsPieVOS = new ArrayList<>();
         String yesterdayYMD = DateUtil.getYesterdayYMD();
-        List<CapitalDaily> capitalDailies = capitalDailyMapper.selectTodayCapitalDaily(yesterdayYMD+"%");
-        if(capitalDailies.size()!=0) {
+        List<CapitalDaily> capitalDailies = capitalDailyMapper.selectTodayCapitalDaily(yesterdayYMD + "%");
+        if (capitalDailies.size() != 0) {
             EchartsPieVO echartsPieVO1 = new EchartsPieVO();
             echartsPieVO1.setName("消费资产");
 
@@ -342,6 +347,7 @@ public class StatisticsService {
 
     /**
      * 收益总量-今日统计
+     *
      * @param startDate
      * @param endDate
      * @return
@@ -365,14 +371,15 @@ public class StatisticsService {
 
     /**
      * 收益情况-饼状图
+     *
      * @return
      */
     public BaseResponse<List<EchartsPieVO>> profitsTotalPie() {
         BaseResponse<List<EchartsPieVO>> response = new BaseResponse<>();
-        List<EchartsPieVO> echartsPieVOS=new ArrayList<>();
+        List<EchartsPieVO> echartsPieVOS = new ArrayList<>();
         String yesterdayYMD = DateUtil.getYesterdayYMD();
-        List<ProfitsTotal> profitsTotals = profitsTotalMapper.selectTodayProfitsTotal(yesterdayYMD+"%");
-        if(profitsTotals.size()!=0) {
+        List<ProfitsTotal> profitsTotals = profitsTotalMapper.selectTodayProfitsTotal(yesterdayYMD + "%");
+        if (profitsTotals.size() != 0) {
             EchartsPieVO echartsPieVO1 = new EchartsPieVO();
             echartsPieVO1.setName("锁仓收益");
             echartsPieVO1.setValue(profitsTotals.get(0).getProfitsLockrepo());
@@ -397,6 +404,7 @@ public class StatisticsService {
 
     /**
      * 收益情况-每日增量趋势
+     *
      * @param startDate
      * @param endDate
      * @return
@@ -420,15 +428,16 @@ public class StatisticsService {
 
     /**
      * 收益情况-每日增量饼状图
+     *
      * @return
      */
     public BaseResponse<List<EchartsPieVO>> profitsDailyPie() {
         BaseResponse<List<EchartsPieVO>> response = new BaseResponse<>();
-        List<EchartsPieVO> echartsPieVOS=new ArrayList<>();
+        List<EchartsPieVO> echartsPieVOS = new ArrayList<>();
         String yesterdayYMD = DateUtil.getYesterdayYMD();
-        List<ProfitsDaily> profitsDailies = profitsDailyMapper.selectTodayProfitsDaily(yesterdayYMD+"%");
+        List<ProfitsDaily> profitsDailies = profitsDailyMapper.selectTodayProfitsDaily(yesterdayYMD + "%");
 
-        if(profitsDailies.size()!=0) {
+        if (profitsDailies.size() != 0) {
             EchartsPieVO echartsPieVO1 = new EchartsPieVO();
             echartsPieVO1.setName("锁仓收益");
             echartsPieVO1.setValue(profitsDailies.get(0).getProfitsLockrepo());
@@ -451,38 +460,65 @@ public class StatisticsService {
         return response;
     }
 
-    public BaseResponse<List<ConsumerTranceDetail>> exportXls() {
-        BaseResponse<List<ConsumerTranceDetail>>   baseResponse=new BaseResponse<>();
+    public List<ConsumerTranceDetail> exportXls() {
+        BaseResponse<List<ConsumerTranceDetail>> baseResponse = new BaseResponse<>();
         BuguQuery<ConsumerTranceDetail> query = consumerTranceDetailDAO.query();
         List<ConsumerTranceDetail> results = query.results();
-        baseResponse.setData(results);
-        baseResponse.setResponseCode(ResponseCode.OK.getCode());
-        baseResponse.setResponseMsg(ResponseCode.OK.getMessage());
-        return baseResponse;
+        return results;
     }
 
     public BaseResponse coinCurrent() {
         BaseResponse response = new BaseResponse<>();
-        BigDecimal coinPriceBig = BigDecimal.ZERO;
-        SysDictionaryExample dictionaryExample = new SysDictionaryExample();
-        dictionaryExample.createCriteria().andDicCodeEqualTo("current_price");
-        List<SysDictionary> coinPriceDictionaries = sysDictionaryMapper.selectByExample(dictionaryExample);
-        if (coinPriceDictionaries.size() == 0 || coinPriceDictionaries.get(0) == null||coinPriceDictionaries.get(0) .getDicValue().equals("0")) {
-            // 获取比例值基数
-            SysParameter coinPrice = sysParameterMapper.selectByPrimaryKey(9);
-            coinPriceBig = coinPrice.getParamValue();
-        }else{
-            coinPriceBig=new BigDecimal(Double.parseDouble(coinPriceDictionaries.get(0).getDicValue()));
+        //现价默认为1
+        BigDecimal coinPriceBig = BigDecimal.ONE;
+        //比率值增量默认为0.01
+        BigDecimal coinIncr=new BigDecimal(0.01);
+
+        //获取现价
+        SysParameterExample sysParameterExample=new SysParameterExample();
+        sysParameterExample.createCriteria().andParamCodeEqualTo("current_price");
+        List<SysParameter> sysParameters = sysParameterMapper.selectByExample(sysParameterExample);
+        if(sysParameters.size()<=0||sysParameters.get(0)==null){
+            //现价为空，获取比率值基数
+            SysParameterExample coinPrice = new SysParameterExample();
+            coinPrice.createCriteria().andParamCodeEqualTo("coin_price");
+            List<SysParameter> coinPriceSysParams = sysParameterMapper.selectByExample(coinPrice);
+            if (coinPriceSysParams.size() > 0 && coinPriceSysParams.get(0) != null) {
+                coinPriceBig = coinPriceSysParams.get(0).getParamValue();
+            }
+        }else {
+            coinPriceBig=sysParameters.get(0).getParamValue();
         }
         // 获取比例值增量
-        SysParameter coinIncr = sysParameterMapper.selectByPrimaryKey(10);
-        BigDecimal currentPrice = coinPriceBig.add(coinIncr.getParamValue()).setScale(2,BigDecimal.ROUND_HALF_UP);
-        Map map =new HashMap<>();
-        map.put("currentPrice",currentPrice);
+        SysParameterExample coinExample=new SysParameterExample();
+        coinExample.createCriteria().andParamCodeEqualTo("coin_incr");
+        List<SysParameter> coinIncrParams = sysParameterMapper.selectByExample(coinExample);
+        if(coinIncrParams.size()>0&&coinIncrParams.get(0)!=null){
+            coinIncr=coinIncrParams.get(0).getParamValue();
+        }
+        BigDecimal currentPrice = coinPriceBig.add(coinIncr).setScale(2, BigDecimal.ROUND_HALF_UP);
+        Map map = new HashMap<>();
+        map.put("currentPrice", currentPrice);
         response.setData(map);
         response.setResponseCode(ResponseCode.OK.getCode());
         response.setResponseMsg(ResponseCode.OK.getMessage());
         return response;
 
+    }
+
+    /**
+     * 查询内部账地址
+     *
+     * @return
+     */
+    public String getInterAcoountAddress() {
+        SysDictionaryExample dictionaryExample = new SysDictionaryExample();
+        dictionaryExample.createCriteria().andDicCodeEqualTo("inter_Account");
+        List<SysDictionary> sysDictionaries = sysDictionaryMapper.selectByExample(dictionaryExample);
+        if (sysDictionaries.size() == 0 || sysDictionaries.get(0) == null) {
+            throw new RuntimeException("内部账地址为空！！！");
+        }
+        SysDictionary sysDictionary = sysDictionaries.get(0);
+        return sysDictionary.getDicValue();
     }
 }
