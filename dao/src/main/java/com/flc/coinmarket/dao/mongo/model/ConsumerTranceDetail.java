@@ -133,46 +133,46 @@ public class ConsumerTranceDetail extends SimpleEntity {
     public static long getSerialVersionUID() {
         return serialVersionUID;
     }
-
-    public String getNickNameFrom() {
-        return nickNameFrom;
-    }
-
-    public void setNickNameFrom(String nickNameFrom) {
-        this.nickNameFrom = nickNameFrom;
-    }
-
-    public String getNickNameTo() {
-        return nickNameTo;
-    }
-
-    public void setNickNameTo(String nickNameTo) {
-        this.nickNameTo = nickNameTo;
-    }
-
-    public String getPhoneNoFrom() {
-        return phoneNoFrom;
-    }
-
-    public void setPhoneNoFrom(String phoneNoFrom) {
-        this.phoneNoFrom = phoneNoFrom;
-    }
-
-    public String getPhoneNoTo() {
-        return phoneNoTo;
-    }
-
-    public void setPhoneNoTo(String phoneNoTo) {
-        this.phoneNoTo = phoneNoTo;
-    }
-
-    public BigDecimal getBalance() {
-        return balance;
-    }
-
-    public void setBalance(BigDecimal balance) {
-        this.balance = balance;
-    }
+//
+//    public String getNickNameFrom() {
+//        return nickNameFrom;
+//    }
+//
+//    public void setNickNameFrom(String nickNameFrom) {
+//        this.nickNameFrom = nickNameFrom;
+//    }
+//
+//    public String getNickNameTo() {
+//        return nickNameTo;
+//    }
+//
+//    public void setNickNameTo(String nickNameTo) {
+//        this.nickNameTo = nickNameTo;
+//    }
+//
+//    public String getPhoneNoFrom() {
+//        return phoneNoFrom;
+//    }
+//
+//    public void setPhoneNoFrom(String phoneNoFrom) {
+//        this.phoneNoFrom = phoneNoFrom;
+//    }
+//
+//    public String getPhoneNoTo() {
+//        return phoneNoTo;
+//    }
+//
+//    public void setPhoneNoTo(String phoneNoTo) {
+//        this.phoneNoTo = phoneNoTo;
+//    }
+//
+//    public BigDecimal getBalance() {
+//        return balance;
+//    }
+//
+//    public void setBalance(BigDecimal balance) {
+//        this.balance = balance;
+//    }
 
     public String getCreatTime(){
         if(createdTime==null){
