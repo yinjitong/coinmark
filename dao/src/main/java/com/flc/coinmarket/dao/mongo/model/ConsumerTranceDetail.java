@@ -37,16 +37,7 @@ public class ConsumerTranceDetail extends SimpleEntity {
     private Date updatedTime;
     @ApiModelProperty(name = "transferConsumer", value = "交易对方客户", example = "1")
     private Integer transferConsumer;
-    @ApiModelProperty(name = "nickNameFrom", value = "昵称", example = "小红")
-    private String nickNameFrom;
-    @ApiModelProperty(name = "nickNameTo", value = "昵称", example = "小蓝")
-    private String nickNameTo;
-    @ApiModelProperty(name = "phoneNoFrom", value = "转出方手机号", example = "13333333333")
-    private String phoneNoFrom;
-    @ApiModelProperty(name = "phoneNoTo", value = "转入方手机号", example = "13333333333")
-    private String phoneNoTo;
-    @ApiModelProperty(name = "balance", value = "余额", example = "12.000000")
-    private BigDecimal balance;
+
 
     private static final long serialVersionUID = 1L;
 
