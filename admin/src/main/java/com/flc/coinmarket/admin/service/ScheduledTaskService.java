@@ -7,6 +7,7 @@ import com.flc.coinmarket.dao.mongo.dao.ConsumerTranceDetailDAO;
 import com.flc.coinmarket.dao.mongo.model.ConsumerTranceDetail;
 import com.flc.coinmarket.dao.mysql.mapper.consumer.ConsumerCapitalAccountMapper;
 import com.flc.coinmarket.dao.mysql.mapper.consumer.ConsumerMapper;
+import com.flc.coinmarket.dao.mysql.mapper.consumer.ConsumerSettingsMapper;
 import com.flc.coinmarket.dao.mysql.mapper.consumer.ConsumerTeamMapper;
 import com.flc.coinmarket.dao.mysql.mapper.statistics.*;
 import com.flc.coinmarket.dao.mysql.mapper.system.ProfitsLockrepoRatioMapper;
@@ -22,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -95,6 +95,8 @@ public class ScheduledTaskService {
     SysParameterMapper sysParameterMapper;
     @Autowired
     SysDictionaryMapper sysDictionaryMapper;
+    @Autowired
+    ConsumerSettingsMapper consumerSettingsMapper;
 
     SettlementService settlementService = new SettlementService();
 
@@ -125,11 +127,35 @@ public class ScheduledTaskService {
             if (lockProfits.compareTo(new BigDecimal(0)) < 1) {
                 continue;
             }
+
+            //查询当前账户用户信息
+            ConsumerWithBLOBs consumer = consumerMapper.selectByPrimaryKey(account.getConsumerId());
+
+            //查询当前用户设置信息
+            ConsumerSettingsExample consumerSettingsExample = new ConsumerSettingsExample();
+            consumerSettingsExample.createCriteria().andConsumerIdEqualTo(account.getConsumerId());
+            List<ConsumerSettings> settings = consumerSettingsMapper.selectByExample(consumerSettingsExample);
+            if (settings.size() == 0 || settings.get(0) == null) {
+                throw new RuntimeException("当前用户设置信息不存在");
+            }
+            ConsumerSettings setting= settings.get(0);
+            //本次交易流水号
+            String tranNo = UUID.randomUUID().toString().replace("-", "").toLowerCase();
+            //查询内部账号余额
             String interAcoountAddress = getInterAcoountAddress();
+            BuguQuery<ConsumerTranceDetail> query = consumerTranceDetailDAO.query();
+            List<ConsumerTranceDetail> results = query.in("transferAddressFrom", interAcoountAddress).sortDesc("createdTime").results();
+
             //内部账 付
-            tranceDetails.add(createTranceDetail(null, lockProfits.negate(), Constants.INCOME.VALUE, Constants.INCOME.SourceType.LOCK_REPO_PROFITS.getValue(), interAcoountAddress, account.getFloatingAddress(), account.getId()));
+            tranceDetails.add(createTranceDetail(tranNo, null,lockProfits.negate(), Constants.INCOME.VALUE,
+                    Constants.INCOME.SourceType.LOCK_REPO_PROFITS.getValue(), interAcoountAddress, account.getFloatingAddress(),account.getId()
+                    ,results.size() == 0 || results.get(0) == null ? BigDecimal.ZERO.subtract(lockProfits) : results.get(0).getBalance().subtract(lockProfits)
+            ,null,consumer.getPhoneNo(),null,setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName()));
             //收
-            tranceDetails.add(createTranceDetail(account.getId(), lockProfits, Constants.INCOME.VALUE, Constants.INCOME.SourceType.LOCK_REPO_PROFITS.getValue(), account.getFloatingAddress(), interAcoountAddress, null));
+            tranceDetails.add(createTranceDetail(tranNo,account.getId(), lockProfits, Constants.INCOME.VALUE,
+                    Constants.INCOME.SourceType.LOCK_REPO_PROFITS.getValue(), account.getFloatingAddress(), interAcoountAddress, null
+                    ,account.getFloatingFunds().add(lockProfits),consumer.getPhoneNo(),null,setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName(),null));
+
             account.setFloatingFunds(account.getFloatingFunds().add(lockProfits));
             account.setProfitsToday(account.getProfitsToday().add(lockProfits));
             account.setAccumulatedProfits(account.getAccumulatedProfits().add(lockProfits));
@@ -321,11 +347,33 @@ public class ScheduledTaskService {
             if (teamProfits.compareTo(new BigDecimal(0)) < 1) {
                 continue;
             }
+            //查询当前账户用户信息
+            ConsumerWithBLOBs consumer = consumerMapper.selectByPrimaryKey(account.getConsumerId());
+
+            //查询当前用户设置信息
+            ConsumerSettingsExample consumerSettingsExample = new ConsumerSettingsExample();
+            consumerSettingsExample.createCriteria().andConsumerIdEqualTo(account.getConsumerId());
+            List<ConsumerSettings> settings = consumerSettingsMapper.selectByExample(consumerSettingsExample);
+            if (settings.size() == 0 || settings.get(0) == null) {
+                throw new RuntimeException("当前用户设置信息不存在");
+            }
+            ConsumerSettings setting= settings.get(0);
+
             String interAcoountAddress = getInterAcoountAddress();
+            //本次交易流水号
+            String tranNo = UUID.randomUUID().toString().replace("-", "").toLowerCase();
+            //查询内部账号余额
+            BuguQuery<ConsumerTranceDetail> query = consumerTranceDetailDAO.query();
+            List<ConsumerTranceDetail> results = query.in("transferAddressFrom", interAcoountAddress).sortDesc("createdTime").results();
+
+
             //付 内部账
-            tranceDetails.add(createTranceDetail(null, teamProfits.negate(), Constants.INCOME.VALUE, Constants.INCOME.SourceType.TEAM_PROFITS.getValue(), interAcoountAddress, account.getFloatingAddress(), account.getId()));
+            tranceDetails.add(createTranceDetail(tranNo, null,teamProfits.negate(), Constants.INCOME.VALUE, Constants.INCOME.SourceType.TEAM_PROFITS.getValue(),
+                    interAcoountAddress, account.getFloatingAddress(), account.getId(),results.size() == 0 || results.get(0) == null ? BigDecimal.ZERO.subtract(teamProfits) : results.get(0).getBalance().subtract(teamProfits)
+                    ,null,consumer.getPhoneNo(),null,setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName()));
             //收 profitsAddress
-            tranceDetails.add(createTranceDetail(account.getId(), teamProfits, Constants.INCOME.VALUE, Constants.INCOME.SourceType.TEAM_PROFITS.getValue(), account.getFloatingAddress(), interAcoountAddress, null));
+            tranceDetails.add(createTranceDetail(tranNo,account.getId(), teamProfits, Constants.INCOME.VALUE, Constants.INCOME.SourceType.TEAM_PROFITS.getValue(), account.getFloatingAddress(), interAcoountAddress, null
+                    ,account.getFloatingFunds().add(teamProfits),consumer.getPhoneNo(),null,setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName(),null));
             account.setFloatingFunds(account.getFloatingFunds().add(teamProfits));
             account.setProfitsToday(teamProfits);
             account.setAccumulatedProfits(account.getAccumulatedProfits().add(teamProfits));
@@ -338,11 +386,11 @@ public class ScheduledTaskService {
         }
     }
 
-    private ConsumerTranceDetail createTranceDetail(Integer accountId, BigDecimal funds, String transType, String sourceType, String addressFrom, String addressTo, Integer transferConsumerId) {
+    private ConsumerTranceDetail createTranceDetail(String tranNo,Integer accountId, BigDecimal funds, String transType, String sourceType, String addressFrom, String addressTo,
+                                                    Integer transferConsumerId,BigDecimal balance,String phoneFrom,String phoneTo,String nickNameFrom,String nickNameTo ) {
         ConsumerTranceDetail tranceDetail = new ConsumerTranceDetail();
         tranceDetail.setAccountId(accountId);
-        // TODO
-        tranceDetail.setTranceNo("");
+        tranceDetail.setTranceNo(tranNo);
         tranceDetail.setFunds(funds);
         tranceDetail.setTranceType(transType);
         tranceDetail.setSourceType(sourceType);
@@ -352,6 +400,12 @@ public class ScheduledTaskService {
         tranceDetail.setTransferAddressFrom(addressFrom);
         tranceDetail.setTransferAddressTo(addressTo);
         tranceDetail.setTransferConsumer(transferConsumerId);
+
+        tranceDetail.setBalance(balance);
+        tranceDetail.setPhoneNoFrom(phoneFrom);
+        tranceDetail.setPhoneNoTo(phoneTo);
+        tranceDetail.setNickNameFrom(nickNameFrom);
+        tranceDetail.setNickNameTo(nickNameTo);
         return tranceDetail;
     }
 
@@ -539,10 +593,28 @@ public class ScheduledTaskService {
             }
             account.setFloatingFunds(account.getFloatingFunds().add(releaseLockrepo));
             account.setLockrepoFunds(account.getLockrepoFunds().subtract(releaseLockrepo));
+
+            //查询当前账户用户信息
+            ConsumerWithBLOBs consumer = consumerMapper.selectByPrimaryKey(account.getConsumerId());
+
+            //查询当前用户设置信息
+            ConsumerSettingsExample consumerSettingsExample = new ConsumerSettingsExample();
+            consumerSettingsExample.createCriteria().andConsumerIdEqualTo(account.getConsumerId());
+            List<ConsumerSettings> settings = consumerSettingsMapper.selectByExample(consumerSettingsExample);
+            if (settings.size() == 0 || settings.get(0) == null) {
+                throw new RuntimeException("当前用户设置信息不存在");
+            }
+            ConsumerSettings setting= settings.get(0);
+
+            //本次交易流水号
+            String tranNo = UUID.randomUUID().toString().replace("-", "").toLowerCase();
+
             //消费地址 收
-            tranceDetails.add(createTranceDetail(account.getId(), releaseLockrepo, Constants.INCOME.VALUE, Constants.INCOME.SourceType.RELEASE_LOCK_REPO.getValue(), account.getFloatingAddress(), account.getLockrepoAddress(), null));
+            tranceDetails.add(createTranceDetail(tranNo,account.getId(), releaseLockrepo, Constants.INCOME.VALUE, Constants.INCOME.SourceType.RELEASE_LOCK_REPO.getValue(), account.getFloatingAddress(), account.getLockrepoAddress(), null
+            ,account.getFloatingFunds().add(releaseLockrepo),consumer.getPhoneNo(),consumer.getPhoneNo(),setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName(),setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName()));
             //锁仓地址 付
-            tranceDetails.add(createTranceDetail(account.getId(), releaseLockrepo, Constants.INCOME.VALUE, Constants.EXPENSE.SourceType.LOCKREPO_RELESE.getValue(), account.getLockrepoAddress(), account.getFloatingAddress(), null));
+            tranceDetails.add(createTranceDetail(tranNo,account.getId(), releaseLockrepo, Constants.INCOME.VALUE, Constants.EXPENSE.SourceType.LOCKREPO_RELESE.getValue(), account.getLockrepoAddress(), account.getFloatingAddress(), null
+            ,account.getLockrepoFunds().subtract(releaseLockrepo),consumer.getPhoneNo(),consumer.getPhoneNo(),setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName(),setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName()));
         }
         if (!tranceDetails.isEmpty()) {
             consumerTranceDetailDAO.insert(tranceDetails);
@@ -569,11 +641,35 @@ public class ScheduledTaskService {
             }
             account.setLockrepoFunds(account.getLockrepoFunds().subtract(destroyLockrepo));
             account.setAccumulatedProfits(new BigDecimal(0));
+
+            //获取内部账地址
             String interAcoountAddress = getInterAcoountAddress();
+
+            //查询当前账户用户信息
+            ConsumerWithBLOBs consumer = consumerMapper.selectByPrimaryKey(account.getConsumerId());
+
+            //查询当前用户设置信息
+            ConsumerSettingsExample consumerSettingsExample = new ConsumerSettingsExample();
+            consumerSettingsExample.createCriteria().andConsumerIdEqualTo(account.getConsumerId());
+            List<ConsumerSettings> settings = consumerSettingsMapper.selectByExample(consumerSettingsExample);
+            if (settings.size() == 0 || settings.get(0) == null) {
+                throw new RuntimeException("当前用户设置信息不存在");
+            }
+            ConsumerSettings setting= settings.get(0);
+            //本次交易流水号
+            String tranNo = UUID.randomUUID().toString().replace("-", "").toLowerCase();
+            //查询内部账号余额
+            BuguQuery<ConsumerTranceDetail> query = consumerTranceDetailDAO.query();
+            List<ConsumerTranceDetail> results = query.in("transferAddressFrom", interAcoountAddress).sortDesc("createdTime").results();
+
+
             //锁仓  付
-            tranceDetails.add(createTranceDetail(account.getId(), destroyLockrepo, Constants.EXPENSE.VALUE, Constants.EXPENSE.SourceType.DESTROY.getValue(), account.getLockrepoAddress(), interAcoountAddress, null));
+            tranceDetails.add(createTranceDetail(tranNo,account.getId(), destroyLockrepo, Constants.EXPENSE.VALUE, Constants.EXPENSE.SourceType.DESTROY.getValue(), account.getLockrepoAddress(), interAcoountAddress, null
+            ,account.getLockrepoFunds().subtract(destroyLockrepo),consumer.getPhoneNo(),null,setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName(),null));
             //内部账 收
-            tranceDetails.add(createTranceDetail(null, destroyLockrepo.negate(), Constants.EXPENSE.VALUE, Constants.EXPENSE.SourceType.DESTROY.getValue(), interAcoountAddress, account.getLockrepoAddress(), account.getId()));
+            tranceDetails.add(createTranceDetail(tranNo,null, destroyLockrepo.negate(), Constants.EXPENSE.VALUE, Constants.EXPENSE.SourceType.DESTROY.getValue(), interAcoountAddress, account.getLockrepoAddress(), account.getId()
+                   , results.size() == 0 || results.get(0) == null ? BigDecimal.ZERO.subtract(destroyLockrepo) : results.get(0).getBalance().add(destroyLockrepo)
+            ,null,consumer.getPhoneNo(),null,setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName()));
 
             //自动复投
             if ("1".equals(account.getReinvestFlag())) {
@@ -584,9 +680,12 @@ public class ScheduledTaskService {
                 account.setFloatingFunds(account.getFloatingFunds().subtract(autoReinvest));
                 account.setLockrepoFunds(account.getLockrepoFunds().add(autoReinvest));
                 //流动 付
-                tranceDetails.add(createTranceDetail(account.getId(), autoReinvest, Constants.EXPENSE.VALUE, Constants.EXPENSE.SourceType.REINVEST.getValue(), account.getFloatingAddress(), account.getLockrepoAddress(), null));
+                tranceDetails.add(createTranceDetail(tranNo,account.getId(), autoReinvest, Constants.EXPENSE.VALUE, Constants.EXPENSE.SourceType.REINVEST.getValue(), account.getFloatingAddress(), account.getLockrepoAddress(), null,
+                        account.getFloatingFunds().subtract(autoReinvest),null,null,null,null));
                 //锁仓  收
-                tranceDetails.add(createTranceDetail(account.getId(), autoReinvest.negate(), Constants.EXPENSE.VALUE, Constants.EXPENSE.SourceType.REINVEST.getValue(), account.getLockrepoAddress(), account.getFloatingAddress(), null));
+                tranceDetails.add(createTranceDetail(tranNo,account.getId(), autoReinvest.negate(), Constants.EXPENSE.VALUE, Constants.EXPENSE.SourceType.REINVEST.getValue(), account.getLockrepoAddress(), account.getFloatingAddress(), null,
+                        account.getLockrepoFunds().add(autoReinvest),null,null,null,null
+                        ));
             }
         }
         if (!tranceDetails.isEmpty()) {
@@ -711,27 +810,40 @@ public class ScheduledTaskService {
         }
 
         //更新现价
-        BigDecimal coinPriceBig = BigDecimal.ZERO;
-        SysDictionaryExample dictionaryExample = new SysDictionaryExample();
-        dictionaryExample.createCriteria().andDicCodeEqualTo("current_price");
-        List<SysDictionary> coinPriceDictionaries = sysDictionaryMapper.selectByExample(dictionaryExample);
-        if (coinPriceDictionaries.size() == 0 || coinPriceDictionaries.get(0) == null||coinPriceDictionaries.get(0) .getDicValue().equals("0")) {
-            // 获取比例值基数
-            SysParameter coinPrice = sysParameterMapper.selectByPrimaryKey(9);
-            coinPriceBig = coinPrice.getParamValue();
-        }else{
-            coinPriceBig=new BigDecimal(Double.parseDouble(coinPriceDictionaries.get(0).getDicValue()));
-        }
+        //比率值增量默认为0.01
+        BigDecimal coinIncr=new BigDecimal(0.01);
         // 获取比例值增量
-        SysParameter coinIncr = sysParameterMapper.selectByPrimaryKey(10);
-        BigDecimal currentPrice = coinPriceBig.add(coinIncr.getParamValue());
-        BigDecimal currentPriceBig = currentPrice.setScale(2, BigDecimal.ROUND_HALF_UP);
+        SysParameterExample coinExample=new SysParameterExample();
+        coinExample.createCriteria().andParamCodeEqualTo("coin_incr");
+        List<SysParameter> coinIncrParams = sysParameterMapper.selectByExample(coinExample);
+        if(coinIncrParams.size()>0&&coinIncrParams.get(0)!=null){
+            coinIncr=coinIncrParams.get(0).getParamValue();
+        }
+        //现价默认为1
+        BigDecimal coinPriceBig = BigDecimal.ONE;
 
+        SysParameterExample sysParameterExample=new SysParameterExample();
+        sysParameterExample.createCriteria().andParamCodeEqualTo("current_price");
+        List<SysParameter> sysParameters = sysParameterMapper.selectByExample(sysParameterExample);
+        if(sysParameters.size()<=0||sysParameters.get(0)==null){
+            SysParameterExample coinPrice = new SysParameterExample();
+            coinPrice.createCriteria().andParamCodeEqualTo("coin_price");
+            List<SysParameter> coinPriceSysParams = sysParameterMapper.selectByExample(coinPrice);
+            if (coinPriceSysParams.size() > 0 && coinPriceSysParams.get(0) != null) {
+                coinPriceBig = coinPriceSysParams.get(0).getParamValue();
+            }
+            BigDecimal currentPrice = coinPriceBig.add(coinIncr).setScale(2, BigDecimal.ROUND_HALF_UP);
+            SysParameter sysParameter=new SysParameter(null,"current_price","现价",currentPrice,null,null,null,null);
+            //插入现价
+            sysParameterMapper.insertSelective(sysParameter);
 
-        coinPriceDictionaries.get(0).setDicValue(currentPriceBig+"");
-        sysDictionaryMapper.updateByPrimaryKey(coinPriceDictionaries.get(0));
-
-
+        }else {
+            coinPriceBig=sysParameters.get(0).getParamValue();
+            BigDecimal currentPrice = coinPriceBig.add(coinIncr).setScale(2, BigDecimal.ROUND_HALF_UP);
+            sysParameters.get(0).setParamValue(currentPrice);
+            //更新现价
+            sysParameterMapper.updateByPrimaryKey(sysParameters.get(0));
+        }
     }
 
     private ConsumerTeam createConsumerTeam(ConsumerTeam leftTeam, ConsumerTeam rightTeam) {

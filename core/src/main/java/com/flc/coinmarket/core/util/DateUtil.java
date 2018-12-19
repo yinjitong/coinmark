@@ -92,8 +92,6 @@ public class DateUtil {
 
     public static Date getYestrtdayDate(){
         Calendar c=Calendar.getInstance();
-        Date time = c.getTime();
-        c.setTime(time);//把当前时间赋给日历
         c.add(Calendar.DAY_OF_MONTH, -1);//设置为前一天
         Date dBefore = c.getTime();//得到前一天的时间
         return dBefore;

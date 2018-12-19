@@ -24,7 +24,6 @@ public class DateValidate {
         }
         HashMap<String,Date> map=new HashMap<>();
 
-
         Calendar before=Calendar.getInstance();
         before.setTime(startDate);
         before.set(Calendar.HOUR_OF_DAY,0);
@@ -46,11 +45,6 @@ public class DateValidate {
 
 
     public static void main(String[] args) {
-        Calendar c=Calendar.getInstance();
-        Date date=c.getTime();
-        c.add(Calendar.DATE, +7);
-        Date time = c.getTime();
-
         HashMap<String, Date> stringDateHashMap = DateValidate.dateValidate(null,null);
 
         System.out.println("startDate = [" + stringDateHashMap.get("startDate") + "]"+

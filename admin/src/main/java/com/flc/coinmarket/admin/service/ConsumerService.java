@@ -230,29 +230,47 @@ public class ConsumerService {
             if(sysDictionaries.size()==0||sysDictionaries.get(0)==null){
                 throw new RuntimeException("内部账地址不存在！！！");
             }
-            String dicValue = sysDictionaries.get(0).getDicValue();
-            detail.setTransferAddressFrom(dicValue);
+            String inAddressValue = sysDictionaries.get(0).getDicValue();
+            //查询内部账号余额
+            BuguQuery<ConsumerTranceDetail> query = consumerTranceDetailDAO.query();
+            List<ConsumerTranceDetail> results = query.in("transferAddressFrom", inAddressValue).sortDesc("createdTime").results();
+
+
+            String tranNo= UUID.randomUUID().toString().replace("-", "").toLowerCase();
+
+            detail.setTranceNo(tranNo);
+            detail.setTransferAddressFrom(inAddressValue);
             detail.setTransferAddressTo(floatingAddress);
             detail.setFunds(consumerParam.getFloatingFunds()==null?BigDecimal.ZERO:consumerParam.getFloatingFunds());
 //            detail.setAccountId();
             detail.setCreatedTime(new Date());
             detail.setSourceType(Constants.EXPENSE.SourceType.TRANS_OUT.getValue());//
-//            payDetail.setTranceNo();
             detail.setTranceType(Constants.EXPENSE.VALUE);
             detail.setTransferConsumer(consumerParam.getId());
+            detail.setBalance(results.size()==0||results.get(0)==null ?
+                    BigDecimal.ZERO.add(consumerParam.getFloatingFunds().negate()) : results.get(0).getBalance().add(consumerParam.getFloatingFunds().negate()));//余额
+//            detail.setNickNameFrom();
+            detail.setNickNameTo(consumerParam.getPhoneNo());
+//            detail.setPhoneNoFrom();
+            detail.setPhoneNoTo(consumerParam.getPhoneNo());
             consumerTranceDetailDAO.insert(detail);
 
             //收 消费资产
             ConsumerTranceDetail detailIn = new ConsumerTranceDetail();
+            detailIn.setTranceNo(tranNo);
             detailIn.setTransferAddressFrom(floatingAddress);
-            detailIn.setTransferAddressTo(dicValue);
+            detailIn.setTransferAddressTo(inAddressValue);
             detailIn.setFunds(consumerParam.getFloatingFunds()==null?BigDecimal.ZERO:consumerParam.getFloatingFunds());
             detailIn.setAccountId(consumerCapitalAccount.getId());
             detailIn.setCreatedTime(new Date());
             detailIn.setSourceType(Constants.INCOME.SourceType.TRANS_IN.getValue());
-//      payDetail.setTranceNo();
             detailIn.setTranceType(Constants.INCOME.VALUE);
-//      detail.setTransferConsumer();
+//          detailIn.setTransferConsumer();
+//          detailIn.setPhoneNoTo();
+            detailIn.setPhoneNoFrom(consumerParam.getPhoneNo());
+//          detailIn.setNickNameTo();
+            detailIn.setNickNameFrom(consumerParam.getPhoneNo());
+            detailIn.setBalance(consumerParam.getFloatingFunds()==null?BigDecimal.ZERO:consumerParam.getFloatingFunds());
             consumerTranceDetailDAO.insert(detailIn);
 
             response.setData(consumerParam);
