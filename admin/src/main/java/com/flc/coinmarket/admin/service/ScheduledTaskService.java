@@ -832,14 +832,14 @@ public class ScheduledTaskService {
             if (coinPriceSysParams.size() > 0 && coinPriceSysParams.get(0) != null) {
                 coinPriceBig = coinPriceSysParams.get(0).getParamValue();
             }
-            BigDecimal currentPrice = coinPriceBig.add(coinIncr).setScale(2, BigDecimal.ROUND_HALF_UP);
+            BigDecimal currentPrice = coinPriceBig.add(coinIncr).setScale(8, BigDecimal.ROUND_HALF_UP);
             SysParameter sysParameter=new SysParameter(null,"current_price","现价",currentPrice,null,null,null,null);
             //插入现价
             sysParameterMapper.insertSelective(sysParameter);
 
         }else {
             coinPriceBig=sysParameters.get(0).getParamValue();
-            BigDecimal currentPrice = coinPriceBig.add(coinIncr).setScale(2, BigDecimal.ROUND_HALF_UP);
+            BigDecimal currentPrice = coinPriceBig.add(coinIncr).setScale(8, BigDecimal.ROUND_HALF_UP);
             sysParameters.get(0).setParamValue(currentPrice);
             //更新现价
             sysParameterMapper.updateByPrimaryKey(sysParameters.get(0));

@@ -686,7 +686,7 @@ public class ConsumerService {
         if(coinIncrParams.size()>0&&coinIncrParams.get(0)!=null){
             coinIncr=coinIncrParams.get(0).getParamValue();
         }
-        BigDecimal currentPrice = coinPriceBig.add(coinIncr).setScale(2, BigDecimal.ROUND_HALF_UP);
+        BigDecimal currentPrice = coinPriceBig.add(coinIncr).setScale(8, BigDecimal.ROUND_HALF_UP);
 
         //最终价格
         consumerAppVO.setCurrentPrice(currentPrice);
