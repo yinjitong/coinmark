@@ -347,11 +347,14 @@ public class StatisticsController {
 
     @GetMapping("exportXls")
     @ApiOperation(value = "导出流水", notes = "导出流水", tags = "首页", httpMethod = "GET")
-    public void exportXls(HttpServletResponse servletResponse) {
-        //1.查询所有流水
+    public Object exportXls(HttpServletResponse servletResponse) {
+        //1.查询所有流水/
         List<ConsumerTranceDetail> consumerTranceDetails = statisticsService.exportXls();
         try {
             List<ConsumerTranceDetail> list = consumerTranceDetails;
+            for(ConsumerTranceDetail detail:list){
+                logger.info(detail.getAccountId()+"");
+            }
             if (null != list && list.size() > 0) {
                 // 存在数据可以导出
                 // 2.创建excel，创建标题
@@ -477,6 +480,7 @@ public class StatisticsController {
                     row.createCell(11).setCellValue(detail.getBalance().setScale(2, BigDecimal.ROUND_HALF_UP) + "");
 //
                 }
+                logger.error("。。。。。。。。。。。。。。。。。准备开始设置头。。。。。。。。。。。。。。。");
                 // 4.设置response响应参数：一个流两个头
                 String filename = "流水数据.xlsx";
                 // 4.1一个流：response的输出流
@@ -487,9 +491,12 @@ public class StatisticsController {
                 servletResponse.setHeader("content-disposition", "attachment;filename=" + URLEncoder.encode(filename, "utf-8"));
                 // 5.将excel通过response返回到前台
                 wb.write(os);
+                wb.close();
             }
         } catch (Exception e) {
             e.printStackTrace();
+            logger.error(e.getMessage());
         }
+        return null;
     }
 }
