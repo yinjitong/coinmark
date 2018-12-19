@@ -16,7 +16,8 @@ public class SessionFilter implements Filter {
     String NO_LOGIN = "您还未登录";
 
     //不需要登录就可以访问的路径(比如:注册登录等)
-    String[] includeUrls = new String[]{"/admin/manage/sysuser/login","/swagger-ui.html","/admin/manage/sysuser/getSysTime"};
+    String[] includeUrls = new String[]{"/admin/manage/sysuser/login","/swagger-ui.html","/admin/manage/sysuser/getSysTime"
+    ,"/admin/manage/statistics/exportXls"};
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {

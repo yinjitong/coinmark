@@ -120,6 +120,11 @@ public class ScheduledTaskService {
 
         List<ConsumerTranceDetail> tranceDetails = new ArrayList<>();
 
+        //获取内部账号余额
+        BigDecimal interBalance = interAccountAddressBalace();
+        //获取内部账地址
+        String interAcoountAddress = getInterAcoountAddress();
+
         for (ConsumerCapitalAccount account : capitalAccounts) {
             BigDecimal lockProfits = settlementService.lockProfit(account, lockParamList, ratioLimit);
             //与每日收益上限比较
@@ -127,7 +132,6 @@ public class ScheduledTaskService {
             if (lockProfits.compareTo(new BigDecimal(0)) < 1) {
                 continue;
             }
-
             //查询当前账户用户信息
             ConsumerWithBLOBs consumer = consumerMapper.selectByPrimaryKey(account.getConsumerId());
 
@@ -141,20 +145,18 @@ public class ScheduledTaskService {
             ConsumerSettings setting= settings.get(0);
             //本次交易流水号
             String tranNo = UUID.randomUUID().toString().replace("-", "").toLowerCase();
-            //查询内部账号余额
-            String interAcoountAddress = getInterAcoountAddress();
-            BuguQuery<ConsumerTranceDetail> query = consumerTranceDetailDAO.query();
-            List<ConsumerTranceDetail> results = query.in("transferAddressFrom", interAcoountAddress).sortDesc("createdTime").results();
 
+            interBalance= interBalance.subtract(lockProfits);
             //内部账 付
             tranceDetails.add(createTranceDetail(tranNo, null,lockProfits.negate(), Constants.INCOME.VALUE,
                     Constants.INCOME.SourceType.LOCK_REPO_PROFITS.getValue(), interAcoountAddress, account.getFloatingAddress(),account.getId()
-                    ,results.size() == 0 || results.get(0) == null ? BigDecimal.ZERO.subtract(lockProfits) : results.get(0).getBalance().subtract(lockProfits)
+                    ,interBalance
             ,null,consumer.getPhoneNo(),null,setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName()));
             //收
             tranceDetails.add(createTranceDetail(tranNo,account.getId(), lockProfits, Constants.INCOME.VALUE,
                     Constants.INCOME.SourceType.LOCK_REPO_PROFITS.getValue(), account.getFloatingAddress(), interAcoountAddress, null
-                    ,account.getFloatingFunds().add(lockProfits),consumer.getPhoneNo(),null,setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName(),null));
+                    ,account.getFloatingFunds().add(lockProfits),
+                    consumer.getPhoneNo(),null,setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName(),null));
 
             account.setFloatingFunds(account.getFloatingFunds().add(lockProfits));
             account.setProfitsToday(account.getProfitsToday().add(lockProfits));
@@ -337,6 +339,11 @@ public class ScheduledTaskService {
         List<ProfitsRatio> teamParamList = profitsTeamRatioMapper.selectByExample(profitsTeamRatioExample);
         List<ConsumerTranceDetail> tranceDetails = new ArrayList<>();
 
+        //查询内部账余额
+        BigDecimal interBalance = interAccountAddressBalace();
+        //获取内部账号地址
+        String interAcoountAddress = getInterAcoountAddress();
+
         for (ConsumerCapitalAccount account : capitalAccounts) {
             List<ConsumerCapitalAccount> leftTeam = consumerCapitalAccountMapper.selectLeftTeam(account.getConsumerId());
             List<ConsumerCapitalAccount> rightTeam = consumerCapitalAccountMapper.selectRightTeam(account.getConsumerId());
@@ -359,17 +366,14 @@ public class ScheduledTaskService {
             }
             ConsumerSettings setting= settings.get(0);
 
-            String interAcoountAddress = getInterAcoountAddress();
+            //内部账号余额
+            interBalance=interBalance.subtract(teamProfits);
             //本次交易流水号
             String tranNo = UUID.randomUUID().toString().replace("-", "").toLowerCase();
-            //查询内部账号余额
-            BuguQuery<ConsumerTranceDetail> query = consumerTranceDetailDAO.query();
-            List<ConsumerTranceDetail> results = query.in("transferAddressFrom", interAcoountAddress).sortDesc("createdTime").results();
-
 
             //付 内部账
             tranceDetails.add(createTranceDetail(tranNo, null,teamProfits.negate(), Constants.INCOME.VALUE, Constants.INCOME.SourceType.TEAM_PROFITS.getValue(),
-                    interAcoountAddress, account.getFloatingAddress(), account.getId(),results.size() == 0 || results.get(0) == null ? BigDecimal.ZERO.subtract(teamProfits) : results.get(0).getBalance().subtract(teamProfits)
+                    interAcoountAddress, account.getFloatingAddress(), account.getId(),interBalance
                     ,null,consumer.getPhoneNo(),null,setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName()));
             //收 profitsAddress
             tranceDetails.add(createTranceDetail(tranNo,account.getId(), teamProfits, Constants.INCOME.VALUE, Constants.INCOME.SourceType.TEAM_PROFITS.getValue(), account.getFloatingAddress(), interAcoountAddress, null
@@ -396,7 +400,7 @@ public class ScheduledTaskService {
         tranceDetail.setSourceType(sourceType);
         Date yestrtdayDate = DateUtil.getYestrtdayDate();
         tranceDetail.setCreatedTime(yestrtdayDate);
-        tranceDetail.setUpdatedTime(yestrtdayDate);
+        tranceDetail.setUpdatedTime(new Date());
         tranceDetail.setTransferAddressFrom(addressFrom);
         tranceDetail.setTransferAddressTo(addressTo);
         tranceDetail.setTransferConsumer(transferConsumerId);
@@ -634,6 +638,12 @@ public class ScheduledTaskService {
         BigDecimal destroyLimit = getSysParameter(Constants.SYSTEM_PARAMETER.DESTROY_LOCKREPO_PARAM.DESTROY_LOCKREPO_LIMIT);
         BigDecimal reinvestLimit = getSysParameter(Constants.SYSTEM_PARAMETER.REINVEST_PARAM.REINVEST_LIMIT);
         List<ConsumerTranceDetail> tranceDetails = new ArrayList<>();
+
+        //获取内部账地址
+        String interAcoountAddress = getInterAcoountAddress();
+        //查询内部账号余额
+        BigDecimal interBalance = interAccountAddressBalace();
+
         for (ConsumerCapitalAccount account : capitalAccounts) {
             BigDecimal destroyLockrepo = settlementService.destoryLock(account, destroyTimes, destroyLimit);
             if (destroyLockrepo.compareTo(new BigDecimal(0)) < 1) {
@@ -641,9 +651,6 @@ public class ScheduledTaskService {
             }
             account.setLockrepoFunds(account.getLockrepoFunds().subtract(destroyLockrepo));
             account.setAccumulatedProfits(new BigDecimal(0));
-
-            //获取内部账地址
-            String interAcoountAddress = getInterAcoountAddress();
 
             //查询当前账户用户信息
             ConsumerWithBLOBs consumer = consumerMapper.selectByPrimaryKey(account.getConsumerId());
@@ -656,19 +663,17 @@ public class ScheduledTaskService {
                 throw new RuntimeException("当前用户设置信息不存在");
             }
             ConsumerSettings setting= settings.get(0);
+
+            interBalance =interBalance.add(destroyLockrepo);
             //本次交易流水号
             String tranNo = UUID.randomUUID().toString().replace("-", "").toLowerCase();
-            //查询内部账号余额
-            BuguQuery<ConsumerTranceDetail> query = consumerTranceDetailDAO.query();
-            List<ConsumerTranceDetail> results = query.in("transferAddressFrom", interAcoountAddress).sortDesc("createdTime").results();
-
-
             //锁仓  付
             tranceDetails.add(createTranceDetail(tranNo,account.getId(), destroyLockrepo, Constants.EXPENSE.VALUE, Constants.EXPENSE.SourceType.DESTROY.getValue(), account.getLockrepoAddress(), interAcoountAddress, null
-            ,account.getLockrepoFunds().subtract(destroyLockrepo),consumer.getPhoneNo(),null,setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName(),null));
+            ,account.getLockrepoFunds().subtract(destroyLockrepo)
+                    ,consumer.getPhoneNo(),null,setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName(),null));
             //内部账 收
             tranceDetails.add(createTranceDetail(tranNo,null, destroyLockrepo.negate(), Constants.EXPENSE.VALUE, Constants.EXPENSE.SourceType.DESTROY.getValue(), interAcoountAddress, account.getLockrepoAddress(), account.getId()
-                   , results.size() == 0 || results.get(0) == null ? BigDecimal.ZERO.subtract(destroyLockrepo) : results.get(0).getBalance().add(destroyLockrepo)
+                   , interBalance
             ,null,consumer.getPhoneNo(),null,setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName()));
 
             //自动复投
@@ -870,5 +875,13 @@ public class ScheduledTaskService {
         }
         SysDictionary sysDictionary = sysDictionaries.get(0);
         return sysDictionary.getDicValue();
+    }
+
+    public BigDecimal interAccountAddressBalace(){
+        String interAcoountAddress = getInterAcoountAddress();
+        //查询内部账号余额
+        BuguQuery<ConsumerTranceDetail> query = consumerTranceDetailDAO.query();
+        List<ConsumerTranceDetail> results = query.in("transferAddressFrom", interAcoountAddress).sortDesc("updatedTime").results();
+        return results.size() == 0 || results.get(0) == null ? BigDecimal.ZERO : results.get(0).getBalance();
     }
 }

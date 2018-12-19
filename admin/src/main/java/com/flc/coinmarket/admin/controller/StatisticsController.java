@@ -17,6 +17,11 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbookType;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +36,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -341,10 +347,6 @@ public class StatisticsController {
 
     @GetMapping("exportXls")
     @ApiOperation(value = "导出流水", notes = "导出流水", tags = "首页", httpMethod = "GET")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "startDate", value = "起始时间", example = "2018-01-01", required = true, dataType = "date"),
-            @ApiImplicitParam(name = "endDate", value = "截止时间", example = "2018-01-01", required = true, dataType = "date")
-    })
     public void exportXls(HttpServletResponse servletResponse) {
         //1.查询所有流水
         List<ConsumerTranceDetail> consumerTranceDetails = statisticsService.exportXls();
@@ -358,19 +360,19 @@ public class StatisticsController {
                  * 整个excel：HSSFWorkbook sheet页：HSSFSheet row行：HSSFRow（写）,Row(读)
                  * cell单元格：HSSFCell（写）,Cell（读）
                  */
-                HSSFWorkbook wb = new HSSFWorkbook();
+                XSSFWorkbook wb = new XSSFWorkbook();
                 // 2.2在excel中创建一个sheet页
-                HSSFSheet sheet = wb.createSheet();
+                XSSFSheet sheet = wb.createSheet();
                 // 2.3在sheet页中创建标题行
-                HSSFRow row = sheet.createRow(0);// 创建第一行，第一行从0开始
+                XSSFRow row = sheet.createRow(0);// 创建第一行，第一行从0开始
                 // 2.4在标题行创建标题单元格
                 row.createCell(0).setCellValue("流水号");
                 row.createCell(1).setCellValue("手机号");
                 row.createCell(2).setCellValue("昵称");
                 row.createCell(3).setCellValue("地址");
                 row.createCell(4).setCellValue("类型");
-                row.createCell(5).setCellValue("金额");
-                row.createCell(6).setCellValue("类别");
+                row.createCell(5).setCellValue("类别");
+                row.createCell(6).setCellValue("金额");
                 row.createCell(7).setCellValue("对方手机号");
                 row.createCell(8).setCellValue("对方昵称");
                 row.createCell(9).setCellValue("对方地址");
@@ -385,30 +387,98 @@ public class StatisticsController {
                     row = sheet.createRow(index++);
                     // 3.2创建行的列,给列赋值
                     row.createCell(0).setCellValue(detail.getTranceNo());
-                    row.createCell(1).setCellValue(detail.getPhoneNoFrom());
-                    row.createCell(2).setCellValue(detail.getNickNameFrom());
+                    if(  detail.getPhoneNoFrom()==null){
+                        row.createCell(1).setCellValue("内部账号");
+                    }else{
+                        row.createCell(1).setCellValue(detail.getPhoneNoFrom());
+                    }
+                    if(  detail.getNickNameFrom()==null){
+                        row.createCell(2).setCellValue("内部账号");
+                    }else{
+                        row.createCell(2).setCellValue(detail.getNickNameFrom());
+                    }
+
                     if (detail.getTransferAddressFrom() == null) {
                         row.createCell(3).setCellValue(interAcoountAddress);
                     } else {
                         row.createCell(3).setCellValue(detail.getTransferAddressFrom());
                     }
+                    switch (detail.getTranceType()) {
+                        case "1":
+                            row.createCell(4).setCellValue("收入");
+                            break;
+                        case "2":
+                            row.createCell(4).setCellValue("支出");
+                            break;
+                        default:
+                            break;
+                    }
+                    switch (detail.getSourceType()) {
+                        case "1":
+                            row.createCell(5).setCellValue("交易转入");
+                            break;
+                        case "2":
+                            row.createCell(5).setCellValue("锁仓收益");
+                            break;
+                        case "3":
+                            row.createCell(5).setCellValue("分享算力");
+                            break;
+                        case "4":
+                            row.createCell(5).setCellValue("推荐收益");
+                            break;
+                        case "5":
+                            row.createCell(5).setCellValue("锁仓资产释放");
+                            break;
+                        case "6":
+                            row.createCell(5).setCellValue("交易转出");
+                            break;
+                        case "7":
+                            row.createCell(5).setCellValue("复投锁仓");
+                            break;
+                        case "8":
+                            row.createCell(5).setCellValue("锁仓资金销毁");
+                            break;
+                        case "9":
+                            row.createCell(5).setCellValue("交易手续费");
+                            break;
+                        case "10":
+                            row.createCell(5).setCellValue("流动转锁仓");
+                            break;
+                        case "11":
+                            row.createCell(5).setCellValue("锁仓资产释放");
+                            break;
+                        case "16":
+                            row.createCell(5).setCellValue("流动转锁仓");
+                            break;
+                        default:
+                            break;
+                    }
+                    row.createCell(6).setCellValue(detail.getFunds().setScale(2, BigDecimal.ROUND_HALF_UP) + "");
+                    if(  detail.getPhoneNoTo()==null){
+                        row.createCell(7).setCellValue("内部账号");
+                    }else{
+                        row.createCell(7).setCellValue(detail.getPhoneNoTo());
+                    }
 
-                    row.createCell(4).setCellValue(detail.getTranceType());
-                    row.createCell(5).setCellValue(detail.getFunds().setScale(2, BigDecimal.ROUND_HALF_UP) + "");
-                    row.createCell(6).setCellValue(detail.getSourceType());
-                    row.createCell(7).setCellValue(detail.getPhoneNoTo());
-                    row.createCell(8).setCellValue(detail.getNickNameTo());
+                    if(  detail.getNickNameTo()==null){
+                        row.createCell(8).setCellValue("内部账号");
+                    }else{
+                        row.createCell(8).setCellValue(detail.getNickNameTo());
+                    }
+
                     if (detail.getTransferAddressTo() == null) {
                         row.createCell(9).setCellValue(interAcoountAddress);
                     } else {
                         row.createCell(9).setCellValue(detail.getTransferAddressTo());
                     }
-                    row.createCell(10).setCellValue(detail.getCreatedTime());
+
+                    SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    row.createCell(10).setCellValue(sdf.format(detail.getCreatedTime()));
                     row.createCell(11).setCellValue(detail.getBalance().setScale(2, BigDecimal.ROUND_HALF_UP) + "");
 //
                 }
                 // 4.设置response响应参数：一个流两个头
-                String filename = "流水数据.xls";
+                String filename = "流水数据.xlsx";
                 // 4.1一个流：response的输出流
                 ServletOutputStream os = servletResponse.getOutputStream();
                 // 4.2两个头之一：content-type，告诉前台浏览器返回数据的格式：xml,css,html,json,xls等等

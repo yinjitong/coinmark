@@ -253,6 +253,7 @@ public class ConsumerService {
             detail.setNickNameTo(consumerParam.getPhoneNo());
 //            detail.setPhoneNoFrom();
             detail.setPhoneNoTo(consumerParam.getPhoneNo());
+            detail.setUpdatedTime(new Date());
             consumerTranceDetailDAO.insert(detail);
 
             //收 消费资产
@@ -270,6 +271,7 @@ public class ConsumerService {
             detailIn.setPhoneNoFrom(consumerParam.getPhoneNo());
 //          detailIn.setNickNameTo();
             detailIn.setNickNameFrom(consumerParam.getPhoneNo());
+            detail.setUpdatedTime(new Date());
             detailIn.setBalance(consumerParam.getFloatingFunds()==null?BigDecimal.ZERO:consumerParam.getFloatingFunds());
             consumerTranceDetailDAO.insert(detailIn);
 

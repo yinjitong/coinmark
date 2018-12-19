@@ -146,7 +146,7 @@ public class TransactionalService {
 
         //查询内部账号余额
         BuguQuery<ConsumerTranceDetail> query = consumerTranceDetailDAO.query();
-        List<ConsumerTranceDetail> results = query.in("transferAddressFrom", inAddressValue).sortDesc("createdTime").results();
+        List<ConsumerTranceDetail> results = query.in("transferAddressFrom", inAddressValue).sortDesc("updatedTime").results();
 
         //付 交易转出
         BigDecimal floatingBalance=payAccount.getFloatingFunds().subtract(consumerTrance.getFunds());
