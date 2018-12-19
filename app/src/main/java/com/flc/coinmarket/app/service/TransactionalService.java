@@ -149,9 +149,9 @@ public class TransactionalService {
         List<ConsumerTranceDetail> results = query.in("transferAddressFrom", inAddressValue).sortDesc("createdTime").results();
 
         //付 交易转出
-        payAccount.setFloatingFunds(payAccount.getFloatingFunds().subtract(consumerTrance.getFunds()));
+        BigDecimal floatingBalance=payAccount.getFloatingFunds().subtract(consumerTrance.getFunds());
         ConsumerTranceDetail payDetail = createTranceDetail(tranNo, payAccount.getId(), consumerTrance.getFunds(), Constants.EXPENSE.VALUE, Constants.EXPENSE.SourceType.TRANS_OUT.getValue()
-                ,payAccount.getFloatingAddress(),consumerTrance.getTransferAddressTo(), incomeAccount.getId(), payAccount.getFloatingFunds()
+                ,payAccount.getFloatingAddress(),consumerTrance.getTransferAddressTo(), incomeAccount.getId(), floatingBalance
                 , payConsumer.getPhoneNo(),incomeConsumer.getPhoneNo(),  payConsumerSetting.getNickName() == null ? payConsumer.getPhoneNo() : payConsumerSetting.getNickName(),
                 incomeConsumerSetting.getNickName() == null ? incomeConsumer.getPhoneNo() : incomeConsumerSetting.getNickName());
 
@@ -159,7 +159,7 @@ public class TransactionalService {
 
         //付款方付手续费
         ConsumerTranceDetail payFeeDetail = createTranceDetail(tranNo, payAccount.getId(), tranFee, Constants.EXPENSE.VALUE, Constants.EXPENSE.SourceType.TRANS_FEE.getValue()
-                ,payAccount.getFloatingAddress(),inAddressValue, null,payAccount.getFloatingFunds().subtract(tranFee)
+                ,payAccount.getFloatingAddress(),inAddressValue, null,floatingBalance.subtract(tranFee)
                 , payConsumer.getPhoneNo(), null,payConsumerSetting.getNickName() == null ? payConsumer.getPhoneNo() : payConsumerSetting.getNickName(),
                 null);
         consumerTranceDetailDAO.insert(payFeeDetail);
