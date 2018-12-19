@@ -356,6 +356,7 @@ public class StatisticsController {
                 logger.info(detail.getAccountId()+"");
             }
             if (null != list && list.size() > 0) {
+                logger.info("开始循环list了。。。。。。。。");
                 // 存在数据可以导出
                 // 2.创建excel，创建标题
                 // 2.1创建整个excel
@@ -381,6 +382,8 @@ public class StatisticsController {
                 row.createCell(9).setCellValue("对方地址");
                 row.createCell(10).setCellValue("时间");
                 row.createCell(11).setCellValue("余额");
+
+                logger.info("标题设置完了。。。。。。。。");
 
                 String interAcoountAddress = statisticsService.getInterAcoountAddress();
                 // 3.循环将数据存入excel

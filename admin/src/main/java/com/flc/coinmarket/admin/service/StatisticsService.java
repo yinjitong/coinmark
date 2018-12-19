@@ -489,14 +489,14 @@ public class StatisticsService {
         }else {
             coinPriceBig=sysParameters.get(0).getParamValue();
         }
-        // 获取比例值增量
-        SysParameterExample coinExample=new SysParameterExample();
-        coinExample.createCriteria().andParamCodeEqualTo("coin_incr");
-        List<SysParameter> coinIncrParams = sysParameterMapper.selectByExample(coinExample);
-        if(coinIncrParams.size()>0&&coinIncrParams.get(0)!=null){
-            coinIncr=coinIncrParams.get(0).getParamValue();
-        }
-        BigDecimal currentPrice = coinPriceBig.add(coinIncr).setScale(2, BigDecimal.ROUND_HALF_UP);
+//        // 获取比例值增量
+//        SysParameterExample coinExample=new SysParameterExample();
+//        coinExample.createCriteria().andParamCodeEqualTo("coin_incr");
+//        List<SysParameter> coinIncrParams = sysParameterMapper.selectByExample(coinExample);
+//        if(coinIncrParams.size()>0&&coinIncrParams.get(0)!=null){
+//            coinIncr=coinIncrParams.get(0).getParamValue();
+//        }
+        BigDecimal currentPrice = coinPriceBig.setScale(2, BigDecimal.ROUND_HALF_UP);
         Map map = new HashMap<>();
         map.put("currentPrice", currentPrice);
         response.setData(map);
