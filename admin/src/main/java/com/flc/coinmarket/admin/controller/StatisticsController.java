@@ -352,7 +352,7 @@ public class StatisticsController {
         List<ConsumerTranceDetail> consumerTranceDetails = statisticsService.exportXls();
         try {
             List<ConsumerTranceDetail> list = consumerTranceDetails;
-            if (null != list && list.size() > 0) {
+
                 // 存在数据可以导出
                 // 2.创建excel，创建标题
                 // 2.1创建整个excel
@@ -380,7 +380,7 @@ public class StatisticsController {
                 row.createCell(11).setCellValue("余额");
 
                 logger.info("标题设置完了。。。。。。。。");
-
+            if (null != list && list.size() > 0) {
                 String interAcoountAddress = statisticsService.getInterAcoountAddress();
                 // 3.循环将数据存入excel
                 int index = 1;
@@ -479,6 +479,7 @@ public class StatisticsController {
                     row.createCell(11).setCellValue(detail.getBalance()==null?"0.00": detail.getBalance().setScale(2, BigDecimal.ROUND_HALF_UP) + "");
 //
                 }
+            }
                 // 4.设置response响应参数：一个流两个头
                 String filename = "流水数据.xlsx";
                 // 4.1一个流：response的输出流
@@ -490,7 +491,7 @@ public class StatisticsController {
                 // 5.将excel通过response返回到前台
                 wb.write(os);
                 wb.close();
-            }
+
         } catch (Exception e) {
             e.printStackTrace();
             logger.error(e.getMessage(),e);
