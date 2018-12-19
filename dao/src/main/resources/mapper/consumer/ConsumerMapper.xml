@@ -508,9 +508,9 @@
     LEFT JOIN consumer_settings s ON c.id=s.consumer_id
     LEFT JOIN consumer_settings sr on c.referee=sr.consumer_id
     LEFT JOIN consumer co on c.referee=co.id
-    LEFT JOIN consumer lc on c.left_code=lc.team_pos_code
+    LEFT JOIN consumer lc on BINARY c.left_code=lc.team_pos_code
     LEFT JOIN consumer_settings sl on lc.id=sl.consumer_id
-    LEFT JOIN consumer rc on c.right_code=rc.team_pos_code
+    LEFT JOIN consumer rc on BINARY c.right_code=rc.team_pos_code
     LEFT JOIN consumer_settings srr on rc.id=srr.consumer_id
     GROUP BY c.id) a
     where 1=1 and delete_flag="0"
@@ -550,7 +550,7 @@
         FROM consumer c
         LEFT JOIN consumer_capital_account a ON c.id=a.consumer_id
         LEFT JOIN  consumer_settings s ON c.id=s.consumer_id
-        WHERE full_path LIKE #{fullPath}   GROUP BY c.create_time
+        WHERE BINARY full_path LIKE #{fullPath}   GROUP BY c.create_time
     </select>
   <select id="selectMaxTeamPostCode" resultType="string">
       SELECT team_pos_code
