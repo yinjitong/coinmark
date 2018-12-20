@@ -184,6 +184,8 @@ public class ConsumerService {
             consumerSettings.setAutoTransfer("0");//否
             if (StringUtils.isNotBlank(consumerParam.getNickName())) {
                 consumerSettings.setNickName(consumerParam.getNickName());
+            }else{
+                consumerSettings.setNickName(consumerParam.getPhoneNo());
             }
             consumerSettings.setHeadPortrait("/images/head.jpg");
             consumerSettingsMapper.insertSelective(consumerSettings);
