@@ -487,11 +487,12 @@
         WHERE pathd NOT LIKE '%R%'and isleaf='1' and path_direction like #{pathD}  AND full_path LIKE #{refereeFullPath};
   </select>
   <select id="selectConsumerInfo" parameterType="com.flc.coinmarket.dao.pojo.ConsumerQuery" resultType="com.flc.coinmarket.dao.vo.ConsumerInfoVO">
+    select  * from(
     SELECT
     c.id,
     c.user_name userName,
     c.phone_no phoneNo,
-    ifnull( a.floating_funds, 0 ) + ifnull( a.profits_funds, 0 ) + ifnull( a.lockrepo_funds, 0 ) totalFunds,
+    ifnull( a.floating_funds, 0 ) + ifnull( a.profits_funds, 0 ) + ifnull( a.lockrepo_funds, 0 )   totalFunds,
     a.floating_funds floatingFunds,
     a.lockrepo_funds lockrepoFunds,
     a.profits_funds profitsFunds,
@@ -510,7 +511,9 @@
     max( h.created_time ) lastLoginTime
     FROM
     consumer c
-    LEFT JOIN consumer_login_history h ON c.id = h.consumer_id where  delete_flag = "0"
+    LEFT JOIN consumer_login_history h ON c.id = h.consumer_id
+    WHERE
+    delete_flag = "0"
     GROUP BY
     c.id
     ) c
@@ -522,8 +525,11 @@
     LEFT JOIN consumer_settings sl ON lc.id = sl.consumer_id
     LEFT JOIN consumer rc ON BINARY c.right_code = rc.team_pos_code
     LEFT JOIN consumer_settings srr ON rc.id = srr.consumer_id
+    ) a
+
+    where  1=1
     <if test="phoneNo != null">
-      and phoneNo  like #{phoneNo}"%"
+      and phoneNo  like "%"#{phoneNo}"%"
     </if>
     <if test="nickName != null">
       AND nickName LIKE "%"#{nickName}"%"
