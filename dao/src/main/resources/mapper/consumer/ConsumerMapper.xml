@@ -522,7 +522,6 @@
     LEFT JOIN consumer_settings sl ON lc.id = sl.consumer_id
     LEFT JOIN consumer rc ON BINARY c.right_code = rc.team_pos_code
     LEFT JOIN consumer_settings srr ON rc.id = srr.consumer_id
-    ORDER BY
     <if test="phoneNo != null">
       and phoneNo  like #{phoneNo}"%"
     </if>
