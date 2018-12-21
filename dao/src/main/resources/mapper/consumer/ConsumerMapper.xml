@@ -544,7 +544,7 @@
       and createTime >= #{registryTimeFrom}
     </if>
     <if test="registryTimeTo != null">
-      and #{registryTimeTo}>=createTime
+      and #{registryTimeTo}>createTime
     </if>
     ORDER BY createTime DESC
   </select>

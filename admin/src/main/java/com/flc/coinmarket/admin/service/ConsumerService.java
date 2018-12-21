@@ -5,10 +5,7 @@ import com.flc.coinmarket.admin.volidate.DateValidate;
 import com.flc.coinmarket.core.base.BaseResponse;
 import com.flc.coinmarket.core.base.ResponseCode;
 import com.flc.coinmarket.core.constant.Constants;
-import com.flc.coinmarket.core.util.ConvertUtil;
-import com.flc.coinmarket.core.util.DateUtil;
-import com.flc.coinmarket.core.util.PasswordUtil;
-import com.flc.coinmarket.core.util.RandomNumberUtil;
+import com.flc.coinmarket.core.util.*;
 import com.flc.coinmarket.dao.mongo.dao.ConsumerTranceDetailDAO;
 import com.flc.coinmarket.dao.mongo.model.ConsumerTranceDetail;
 import com.flc.coinmarket.dao.mysql.mapper.consumer.*;
@@ -34,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -76,6 +74,27 @@ public class ConsumerService {
             consumerQuery.setPageSize(10);
         }
         PageHelper.startPage(consumerQuery.getPageNo(), consumerQuery.getPageSize());
+        Date registryTimeFrom = consumerQuery.getRegistryTimeFrom();
+        if(registryTimeFrom!=null) {
+            Calendar c = Calendar.getInstance();
+            c.setTime(registryTimeFrom);
+            c.set(Calendar.HOUR_OF_DAY, 0);
+            c.set(Calendar.MINUTE, 0);
+            c.set(Calendar.SECOND, 0);
+            consumerQuery.setRegistryTimeFrom(c.getTime());
+        }
+
+        Date registryTimeTo = consumerQuery.getRegistryTimeTo();
+        if(registryTimeTo!=null) {
+            Calendar c1 = Calendar.getInstance();
+            c1.setTime(registryTimeTo);
+            c1.add(Calendar.DATE,1);
+            c1.set(Calendar.HOUR_OF_DAY, 0);
+            c1.set(Calendar.MINUTE, 0);
+            c1.set(Calendar.SECOND, 0);
+            consumerQuery.setRegistryTimeTo(c1.getTime());
+        }
+
 
         List<ConsumerInfoVO> consumerInfoVOS = consumerMapper.selectConsumerInfo(consumerQuery);
         PageInfo<ConsumerInfoVO> appsPageInfo = new PageInfo<>(consumerInfoVOS);
