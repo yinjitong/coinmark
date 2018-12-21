@@ -42,6 +42,7 @@ public class ConsumerController {
     public BaseResponse<ConsumerInfoVO> consumer(@PathVariable Integer id) {
         BaseResponse<ConsumerInfoVO> response;
         try {
+            logger.info("你好，git主分支，你看得见我吗？？？？？？？？？？");
             response = consumerService.consumer(id);
         } catch (Exception e) {
             e.printStackTrace();
