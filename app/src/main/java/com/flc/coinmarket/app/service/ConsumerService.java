@@ -263,7 +263,6 @@ public class ConsumerService {
             ConsumerWithBLOBs consumerLeaf = consumerMapper.queryLeafCustomerByLeftCode(refereeConsumer.get(0).getPathDirection().length() + 1,
                     refereeConsumer.get(0).getPathDirection() + "%", refereeConsumer.get(0).getFullPath() + "%");
 
-            logger.info(consumerLeaf.getId() + "..." + consumerLeaf.getDeleteFlag());
             if (consumerLeaf == null) {//节点即为叶子节点
                 consumerLeaf = refereeConsumer.get(0);
             }
