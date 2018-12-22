@@ -22,8 +22,8 @@
             <groupId>xbwen.bugu-mongo</groupId>
             <artifactId>bugu-mongo-core</artifactId>
             <version>3.0.0</version>
-           <scope>system</scope>
-          <systemPath>${project.basedir}/../lib/bugu-mongo-3.0.0/bugu-mongo-core/bugu-mongo-core-3.0.0.jar</systemPath>
+            <!--<scope>system</scope>-->
+            <!--<systemPath>${project.basedir}/../lib/bugu-mongo-3.0.0/bugu-mongo-core/bugu-mongo-core-3.0.0.jar</systemPath>-->
         </dependency>
 
         <dependency>
