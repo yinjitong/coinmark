@@ -488,7 +488,6 @@
   </select>
 
   <select id="selectConsumerInfo" parameterType="com.flc.coinmarket.dao.pojo.ConsumerQuery" resultType="com.flc.coinmarket.dao.vo.ConsumerInfoVO">
-    select * from(
     SELECT
     c.id,
     c.user_name userName,
@@ -513,27 +512,26 @@
     LEFT JOIN consumer_full rcf ON c.referee = rcf.id
     LEFT JOIN consumer_full lcf ON c.left_code = lcf.team_code
     LEFT JOIN consumer_full ricf ON c.right_code = ricf.team_code
-    ) a
     where 1=1
     <if test="phoneNo != null">
-      and phoneNo  like "%"#{phoneNo}"%"
+      and phone_no  like "%"#{phoneNo}"%"
     </if>
     <if test="nickName != null">
-      AND nickName LIKE "%"#{nickName}"%"
+      AND cf.nick_name LIKE "%"#{nickName}"%"
     </if>
     <if test="totalCapitalMin != null">
-      and totalFunds >= #{totalCapitalMin}
+      and ifnull( a.floating_funds, 0 ) + ifnull( a.profits_funds, 0 ) + ifnull( a.lockrepo_funds, 0 ) >= #{totalCapitalMin}
     </if>
     <if test="totalCapitalMax != null">
-      and  #{totalCapitalMax}>=totalFunds
+      and  #{totalCapitalMax}>=ifnull( a.floating_funds, 0 ) + ifnull( a.profits_funds, 0 ) + ifnull( a.lockrepo_funds, 0 )
     </if>
     <if test="registryTimeFrom != null">
-      and createTime >= #{registryTimeFrom}
+      and create_time >= #{registryTimeFrom}
     </if>
     <if test="registryTimeTo != null">
-      and #{registryTimeTo}>createTime
+      and #{registryTimeTo}>create_time
     </if>
-    ORDER BY createTime DESC
+    ORDER BY create_time DESC
   </select>
 
   <select id="selectConsumerMember" parameterType="String" resultType="com.flc.coinmarket.dao.vo.ConsumerInfoVO">
