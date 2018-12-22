@@ -269,7 +269,7 @@ public class ConsumerService {
             //更新叶子节点人的是否叶子节点为0
             consumerLeaf.setIsleaf("0");
             consumerLeaf.setLeftCode(teamPosCode);
-//            consumerMapper.updateByPrimaryKeyWithBLOBs(consumerLeaf);
+            consumerMapper.updateByPrimaryKeyWithBLOBs(consumerLeaf);
             //设置当前节点为叶子节点
             consumerWithBLOBs.setIsleaf("1");
             fullPath = consumerLeaf.getFullPath() + teamPosCode;
@@ -284,7 +284,7 @@ public class ConsumerService {
         consumerWithBLOBs.setPassWord(encodePasswords);
         consumerWithBLOBs.setCreateTime(new Date());
         consumerWithBLOBs.setDeleteFlag("0");
-//        consumerMapper.insertSelective(consumerWithBLOBs);
+        consumerMapper.insertSelective(consumerWithBLOBs);
 
         //TODO 记录客户二维码
         ConsumerTwoDimensionCodeWithBLOBs consumerTwoDimensionCodeWithBLOBs = new ConsumerTwoDimensionCodeWithBLOBs();
@@ -296,7 +296,7 @@ public class ConsumerService {
 //        consumerTwoDimensionCodeWithBLOBs.setLeftDimension();
 //        consumerTwoDimensionCodeWithBLOBs.setRightDimension();
 //        consumerTwoDimensionCodeWithBLOBs.setTrandferDimesion();
-//        consumerTwoDimensionCodeMapper.insertSelective(consumerTwoDimensionCodeWithBLOBs);
+        consumerTwoDimensionCodeMapper.insertSelective(consumerTwoDimensionCodeWithBLOBs);
 
         //记录客户资产账户
         ConsumerCapitalAccount consumerCapitalAccount = new ConsumerCapitalAccount();
@@ -312,7 +312,7 @@ public class ConsumerService {
         consumerCapitalAccount.setReleaseFlag("0");
         consumerCapitalAccount.setReinvestFlag("0");
         consumerCapitalAccount.setProfitsToday(BigDecimal.ZERO);
-//        consumerCapitalAccountMapper.insertSelective(consumerCapitalAccount);
+        consumerCapitalAccountMapper.insertSelective(consumerCapitalAccount);
 
         //记录用户设置表
         ConsumerSettings consumerSettings = new ConsumerSettings();
@@ -320,7 +320,7 @@ public class ConsumerService {
         consumerSettings.setAutoTransfer("0");//否
         consumerSettings.setNickName(consumerRegist.getPhoneNo());
         consumerSettings.setHeadPortrait("/images/head.jpg");
-//        consumerSettingsMapper.insertSelective(consumerSettings);
+        consumerSettingsMapper.insertSelective(consumerSettings);
 
         response.setResponseCode(ResponseCode.OK.getCode());
         response.setResponseMsg(ResponseCode.OK.getMessage());
