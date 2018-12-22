@@ -181,7 +181,7 @@
 
   <insert id="insertIncrease" >
     insert into consumer_count_total (count, created_time)
-    select count(id) + #{dailyCount},#{createdTime}from consumer_count_total
+    select count + #{dailyCount},#{createdTime}from consumer_count_total
      where date_format(created_time,'%Y-%m-%d') = (select max(date_format(created_time,'%Y-%m-%d')) consumer_count_total)
 
   </insert>
