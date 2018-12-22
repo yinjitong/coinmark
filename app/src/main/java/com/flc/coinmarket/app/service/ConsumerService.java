@@ -298,6 +298,7 @@ public class ConsumerService {
 //        consumerTwoDimensionCodeWithBLOBs.setTrandferDimesion();
         consumerTwoDimensionCodeMapper.insertSelective(consumerTwoDimensionCodeWithBLOBs);
 
+
         //记录客户资产账户
         ConsumerCapitalAccount consumerCapitalAccount = new ConsumerCapitalAccount();
         consumerCapitalAccount.setConsumerId(consumerWithBLOBs.getId());
