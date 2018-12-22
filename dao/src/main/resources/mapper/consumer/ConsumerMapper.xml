@@ -488,32 +488,33 @@
   </select>
 
   <select id="selectConsumerInfo" parameterType="com.flc.coinmarket.dao.pojo.ConsumerQuery" resultType="com.flc.coinmarket.dao.vo.ConsumerInfoVO">
-      SELECT
-      c.id,
-      c.user_name userName,
-      c.phone_no phoneNo,
-      ifnull( a.floating_funds, 0 ) + ifnull( a.profits_funds, 0 ) + ifnull( a.lockrepo_funds, 0 ) totalFunds,
-      a.floating_funds floatingFunds,
-      a.lockrepo_funds lockrepoFunds,
-      a.profits_funds profitsFunds,
-      c.create_time createTime,
-      cf.nick_name nickName,
-      llt.lastLoginTime lastLoginTime,
-      c.delete_flag,
-      c.referee,
-      rcf.nick_name refNickName,
-      lcf.nick_name leftNickName,
-      ricf.nick_name rightNickName
-      FROM
-      consumer c
-      LEFT JOIN consumer_capital_account a ON c.id = a.consumer_id
-      LEFT JOIN last_login_time llt ON c.id = llt.id
-      LEFT JOIN consumer_full cf ON c.id = cf.id
-      LEFT JOIN consumer_full rcf ON c.referee = rcf.id
-      LEFT JOIN consumer_full lcf ON c.left_code = lcf.team_code
-      LEFT JOIN consumer_full ricf ON c.right_code = ricf.team_code
-
-    where  1=1
+    select * from(
+    SELECT
+    c.id,
+    c.user_name userName,
+    c.phone_no phoneNo,
+    ifnull( a.floating_funds, 0 ) + ifnull( a.profits_funds, 0 ) + ifnull( a.lockrepo_funds, 0 ) totalFunds,
+    a.floating_funds floatingFunds,
+    a.lockrepo_funds lockrepoFunds,
+    a.profits_funds profitsFunds,
+    c.create_time createTime,
+    cf.nick_name nickName,
+    llt.lastLoginTime lastLoginTime,
+    c.delete_flag,
+    c.referee,
+    rcf.nick_name refNickName,
+    lcf.nick_name leftNickName,
+    ricf.nick_name rightNickName
+    FROM
+    consumer c
+    LEFT JOIN consumer_capital_account a ON c.id = a.consumer_id
+    LEFT JOIN last_login_time llt ON c.id = llt.id
+    LEFT JOIN consumer_full cf ON c.id = cf.id
+    LEFT JOIN consumer_full rcf ON c.referee = rcf.id
+    LEFT JOIN consumer_full lcf ON c.left_code = lcf.team_code
+    LEFT JOIN consumer_full ricf ON c.right_code = ricf.team_code
+    ) a
+    where 1=1
     <if test="phoneNo != null">
       and phoneNo  like "%"#{phoneNo}"%"
     </if>
