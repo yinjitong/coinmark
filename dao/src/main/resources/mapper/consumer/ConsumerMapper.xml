@@ -486,7 +486,9 @@
         full_path,path_direction,isleaf,delete_flag,referee_code  FROM consumer ) a
         WHERE pathd NOT LIKE '%R%'and isleaf='1' and path_direction like #{pathD}  AND full_path LIKE #{refereeFullPath};
   </select>
+
   <select id="selectConsumerInfo" parameterType="com.flc.coinmarket.dao.pojo.ConsumerQuery" resultType="com.flc.coinmarket.dao.vo.ConsumerInfoVO">
+    SET SQL_BIG_SELECTS = 1;
     select  * from(
     SELECT
     c.id,
