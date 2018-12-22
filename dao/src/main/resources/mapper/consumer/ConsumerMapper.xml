@@ -488,46 +488,30 @@
   </select>
 
   <select id="selectConsumerInfo" parameterType="com.flc.coinmarket.dao.pojo.ConsumerQuery" resultType="com.flc.coinmarket.dao.vo.ConsumerInfoVO">
-    SET SQL_BIG_SELECTS = 1;
-    select  * from(
-    SELECT
-    c.id,
-    c.user_name userName,
-    c.phone_no phoneNo,
-    ifnull( a.floating_funds, 0 ) + ifnull( a.profits_funds, 0 ) + ifnull( a.lockrepo_funds, 0 )   totalFunds,
-    a.floating_funds floatingFunds,
-    a.lockrepo_funds lockrepoFunds,
-    a.profits_funds profitsFunds,
-    c.create_time createTime,
-    s.nick_name nickName,
-    c.lastLoginTime lastLoginTime,
-    c.delete_flag,
-    c.referee,
-    ifnull( sr.nick_name, co.account ) refNickName,
-    ifnull( sl.nick_name, lc.account ) leftNickName,
-    ifnull( srr.nick_name, rc.account ) rightNickName
-    FROM
-    (
-    SELECT
-    c.*,
-    max( h.created_time ) lastLoginTime
-    FROM
-    consumer c
-    LEFT JOIN consumer_login_history h ON c.id = h.consumer_id
-    WHERE
-    delete_flag = "0"
-    GROUP BY
-    c.id
-    ) c
-    LEFT JOIN consumer_capital_account a ON c.id = a.consumer_id
-    LEFT JOIN consumer_settings s ON c.id = s.consumer_id
-    LEFT JOIN consumer_settings sr ON c.referee = sr.consumer_id
-    LEFT JOIN consumer co ON c.referee = co.id
-    LEFT JOIN consumer lc ON BINARY c.left_code = lc.team_pos_code
-    LEFT JOIN consumer_settings sl ON lc.id = sl.consumer_id
-    LEFT JOIN consumer rc ON BINARY c.right_code = rc.team_pos_code
-    LEFT JOIN consumer_settings srr ON rc.id = srr.consumer_id
-    ) a
+      SELECT
+      c.id,
+      c.user_name userName,
+      c.phone_no phoneNo,
+      ifnull( a.floating_funds, 0 ) + ifnull( a.profits_funds, 0 ) + ifnull( a.lockrepo_funds, 0 ) totalFunds,
+      a.floating_funds floatingFunds,
+      a.lockrepo_funds lockrepoFunds,
+      a.profits_funds profitsFunds,
+      c.create_time createTime,
+      cf.nick_name nickName,
+      llt.lastLoginTime lastLoginTime,
+      c.delete_flag,
+      c.referee,
+      rcf.nick_name refNickName,
+      lcf.nick_name leftNickName,
+      ricf.nick_name rightNickName
+      FROM
+      consumer c
+      LEFT JOIN consumer_capital_account a ON c.id = a.consumer_id
+      LEFT JOIN last_login_time llt ON c.id = llt.id
+      LEFT JOIN consumer_full cf ON c.id = cf.id
+      LEFT JOIN consumer_full rcf ON c.referee = rcf.id
+      LEFT JOIN consumer_full lcf ON c.left_code = lcf.team_code
+      LEFT JOIN consumer_full ricf ON c.right_code = ricf.team_code
 
     where  1=1
     <if test="phoneNo != null">
