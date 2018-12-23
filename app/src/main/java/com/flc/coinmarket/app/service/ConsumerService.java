@@ -344,7 +344,7 @@ public class ConsumerService {
         }
 
         ConsumerExample example = new ConsumerExample();
-        example.createCriteria().andAccountEqualTo(consumerLogin.getPhoneNo());
+        example.createCriteria().andAccountEqualTo(consumerLogin.getPhoneNo()).andDeleteFlagEqualTo("0");
         List<Consumer> consumers = consumerMapper.selectByExample(example);
         if (consumers.isEmpty()) {
             response.setResponseCode(ResponseCode.PLEASE_REGISTE.getCode());
