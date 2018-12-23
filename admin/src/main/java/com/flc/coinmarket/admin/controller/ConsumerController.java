@@ -118,13 +118,14 @@ public class ConsumerController {
                         // 3.2创建行的列,给列赋值
                         row.createCell(0).setCellValue(consumer.getNickName());
                         row.createCell(1).setCellValue(consumer.getPhoneNo());
-                        row.createCell(2).setCellValue(consumer.getFloatingFunds()+"");
-                        row.createCell(2).setCellValue(consumer.getLockrepoFunds()+"");
-                        row.createCell(4).setCellValue(consumer.getRefNickName());
-                        row.createCell(5).setCellValue(consumer.getLeftNickName());
-                        row.createCell(6).setCellValue(consumer.getRefNickName());
-                        row.createCell(7).setCellValue(consumer.getCreatTime());
-                        row.createCell(8).setCellValue(consumer.getLastLogin());
+                        row.createCell(2).setCellValue(consumer.getTotalFunds()+"");
+                        row.createCell(3).setCellValue(consumer.getFloatingFunds()+"");
+                        row.createCell(4).setCellValue(consumer.getLockrepoFunds()+"");
+                        row.createCell(5).setCellValue(consumer.getRefNickName());
+                        row.createCell(6).setCellValue(consumer.getLeftNickName());
+                        row.createCell(7).setCellValue(consumer.getRefNickName());
+                        row.createCell(8).setCellValue(consumer.getCreatTime());
+                        row.createCell(9).setCellValue(consumer.getLastLogin());
                     }
                 }
                 // 4.设置response响应参数：一个流两个头
