@@ -531,6 +531,7 @@
     <if test="registryTimeTo != null">
       and #{registryTimeTo}>create_time
     </if>
+    and  c.delete_flag!="1"
     ORDER BY create_time DESC
   </select>
 

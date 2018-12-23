@@ -17,12 +17,18 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.net.URLEncoder;
 import java.util.Date;
 import java.util.List;
 
@@ -66,6 +72,83 @@ public class ConsumerController {
             response.setResponseMsg(ResponseCode.SERVER_FAILED.getMessage());
         }
         return response;
+    }
+
+    @GetMapping("exportXlsConsumers")
+    @ApiOperation(value = "导出app用户列表", notes = "导出app用户列表", tags = "用户维护", httpMethod = "GET")
+    public void exportXlsConsumers( HttpServletResponse servletResponse) {
+        BaseResponse<PageInfo<ConsumerInfoVO>> response;
+        try {
+            ConsumerQuery consumerQuery=new ConsumerQuery();
+            response = consumerService.consumers(consumerQuery);
+            try {
+                PageInfo<ConsumerInfoVO> consumersPageInfo = response.getData();
+                List<ConsumerInfoVO> list = consumersPageInfo.getList();
+
+                // 存在数据可以导出
+                // 2.创建excel，创建标题
+                // 2.1创建整个excel
+                /**
+                 * 整个excel：HSSFWorkbook sheet页：HSSFSheet row行：HSSFRow（写）,Row(读)
+                 * cell单元格：HSSFCell（写）,Cell（读）
+                 */
+                XSSFWorkbook wb = new XSSFWorkbook();
+                // 2.2在excel中创建一个sheet页
+                XSSFSheet sheet = wb.createSheet();
+                // 2.3在sheet页中创建标题行
+                XSSFRow row = sheet.createRow(0);// 创建第一行，第一行从0开始
+                // 2.4在标题行创建标题单元格
+                row.createCell(0).setCellValue("昵称");
+                row.createCell(1).setCellValue("手机号");
+                row.createCell(2).setCellValue("资产总量");
+                row.createCell(3).setCellValue("消费资产");
+                row.createCell(4).setCellValue("锁仓资产");
+                row.createCell(5).setCellValue("推荐人");
+                row.createCell(6).setCellValue("左节点");
+                row.createCell(7).setCellValue("右节点");
+                row.createCell(8).setCellValue("注册时间");
+                row.createCell(9).setCellValue("上次登录时间");
+
+                if (null != list && list.size() > 0) {
+                    // 3.循环将数据存入excel
+                    int index = 1;
+                    for (ConsumerInfoVO consumer : list) {
+                        // 3.1循环创建行
+                        row = sheet.createRow(index++);
+                        // 3.2创建行的列,给列赋值
+                        row.createCell(0).setCellValue(consumer.getNickName());
+                        row.createCell(1).setCellValue(consumer.getPhoneNo());
+                        row.createCell(2).setCellValue(consumer.getFloatingFunds()+"");
+                        row.createCell(2).setCellValue(consumer.getLockrepoFunds()+"");
+                        row.createCell(4).setCellValue(consumer.getRefNickName());
+                        row.createCell(5).setCellValue(consumer.getLeftNickName());
+                        row.createCell(6).setCellValue(consumer.getRefNickName());
+                        row.createCell(7).setCellValue(consumer.getCreatTime());
+                        row.createCell(8).setCellValue(consumer.getLastLogin());
+                    }
+                }
+                // 4.设置response响应参数：一个流两个头
+                String filename = "用户列表.xlsx";
+                // 4.1一个流：response的输出流
+                ServletOutputStream os = servletResponse.getOutputStream();
+                // 4.2两个头之一：content-type，告诉前台浏览器返回数据的格式：xml,css,html,json,xls等等
+                servletResponse.setHeader("content-Type", "application/vnd.ms-excel");
+                // 4.3两个头之二：content-disposition，告诉前台浏览器数据的打开方式，附件方式打开值如下：attachment;filename=文件名
+                servletResponse.setHeader("content-disposition", "attachment;filename=" + URLEncoder.encode(filename, "utf-8"));
+                // 5.将excel通过response返回到前台
+                wb.write(os);
+                wb.close();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                logger.error(e.getMessage(),e);
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            response = new BaseResponse<>();
+            response.setResponseCode(ResponseCode.SERVER_FAILED.getCode());
+            response.setResponseMsg(ResponseCode.SERVER_FAILED.getMessage());
+        }
     }
 
     @PostMapping("add")
