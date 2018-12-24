@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.util.Date;
 import java.util.List;
@@ -119,9 +120,9 @@ public class ConsumerController {
                         // 3.2创建行的列,给列赋值
                         row.createCell(0).setCellValue(consumer.getNickName());
                         row.createCell(1).setCellValue(consumer.getPhoneNo());
-                        row.createCell(2).setCellValue(consumer.getTotalFunds()+"");
-                        row.createCell(3).setCellValue(consumer.getFloatingFunds()+"");
-                        row.createCell(4).setCellValue(consumer.getLockrepoFunds()+"");
+                        row.createCell(2).setCellValue(consumer.getTotalFunds().doubleValue()+"");
+                        row.createCell(3).setCellValue(consumer.getFloatingFunds().doubleValue()+"");
+                        row.createCell(4).setCellValue(consumer.getLockrepoFunds().doubleValue()+"");
                         row.createCell(5).setCellValue(consumer.getRefNickName());
                         row.createCell(6).setCellValue(consumer.getLeftNickName());
                         row.createCell(7).setCellValue(consumer.getRefNickName());
