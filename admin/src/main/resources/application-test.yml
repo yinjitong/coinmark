@@ -11,7 +11,7 @@ spring:
       filters: stat
       driver-class-name: com.mysql.jdbc.Driver
 #        url: jdbc:mysql://rm-8vb9q0m9d1vtweyguzo.mysql.zhangbei.rds.aliyuncs.com:3306/bht-test?characterEncoding=utf-8&useSSL=false&useCursorFetch=true
-        url: jdbc:mysql://rm-8vb9q0m9d1vtweygu.mysql.zhangbei.rds.aliyuncs.com:3306/bht-test?characterEncoding=utf-8&useSSL=false&useCursorFetch=true
+      url: jdbc:mysql://rm-8vb9q0m9d1vtweygu.mysql.zhangbei.rds.aliyuncs.com:3306/bht-test?characterEncoding=utf-8&useSSL=false&useCursorFetch=true
       username: bht
       password: bht_2018
 
