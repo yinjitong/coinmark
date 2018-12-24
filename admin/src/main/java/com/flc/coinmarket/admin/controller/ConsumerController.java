@@ -80,7 +80,7 @@ public class ConsumerController {
         BaseResponse<PageInfo<ConsumerInfoVO>> response;
         try {
             ConsumerQuery consumerQuery=new ConsumerQuery();
-            consumerQuery.setPageSize(Integer.MIN_VALUE);
+            consumerQuery.setPageSize(Integer.MAX_VALUE);
             response = consumerService.consumers(consumerQuery);
             try {
                 PageInfo<ConsumerInfoVO> consumersPageInfo = response.getData();
