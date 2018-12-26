@@ -690,10 +690,10 @@ public class ScheduledTaskService {
                 account.setLockrepoFunds(account.getLockrepoFunds().add(autoReinvest));
                 //流动 付
                 tranceDetails.add(createTranceDetail(tranNo,account.getId(), autoReinvest, Constants.EXPENSE.VALUE, Constants.EXPENSE.SourceType.REINVEST.getValue(), account.getFloatingAddress(), account.getLockrepoAddress(), null,
-                        account.getFloatingFunds().subtract(autoReinvest),null,null,null,null));
+                        account.getFloatingFunds(),null,null,null,null));
                 //锁仓  收
                 tranceDetails.add(createTranceDetail(tranNo,account.getId(), autoReinvest.negate(), Constants.EXPENSE.VALUE, Constants.EXPENSE.SourceType.REINVEST.getValue(), account.getLockrepoAddress(), account.getFloatingAddress(), null,
-                        account.getLockrepoFunds().add(autoReinvest),null,null,null,null
+                        account.getLockrepoFunds(),null,null,null,null
                         ));
             }
         }
