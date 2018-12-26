@@ -619,10 +619,10 @@ public class ScheduledTaskService {
 
             //消费地址 收
             tranceDetails.add(createTranceDetail(tranNo,account.getId(), releaseLockrepo, Constants.INCOME.VALUE, Constants.INCOME.SourceType.RELEASE_LOCK_REPO.getValue(), account.getFloatingAddress(), account.getLockrepoAddress(), null
-            ,account.getFloatingFunds().add(releaseLockrepo),consumer.getPhoneNo(),consumer.getPhoneNo(),setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName(),setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName()));
+            ,account.getFloatingFunds(),consumer.getPhoneNo(),consumer.getPhoneNo(),setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName(),setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName()));
             //锁仓地址 付
             tranceDetails.add(createTranceDetail(tranNo,account.getId(), releaseLockrepo, Constants.INCOME.VALUE, Constants.EXPENSE.SourceType.LOCKREPO_RELESE.getValue(), account.getLockrepoAddress(), account.getFloatingAddress(), null
-            ,account.getLockrepoFunds().subtract(releaseLockrepo),consumer.getPhoneNo(),consumer.getPhoneNo(),setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName(),setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName()));
+            ,account.getLockrepoFunds(),consumer.getPhoneNo(),consumer.getPhoneNo(),setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName(),setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName()));
         }
         if (!tranceDetails.isEmpty()) {
             consumerTranceDetailDAO.insert(tranceDetails);
