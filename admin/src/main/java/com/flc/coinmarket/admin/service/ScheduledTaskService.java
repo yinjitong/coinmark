@@ -673,7 +673,7 @@ public class ScheduledTaskService {
             String tranNo = UUID.randomUUID().toString().replace("-", "").toLowerCase();
             //锁仓  付
             tranceDetails.add(createTranceDetail(tranNo,account.getId(), destroyLockrepo, Constants.EXPENSE.VALUE, Constants.EXPENSE.SourceType.DESTROY.getValue(), account.getLockrepoAddress(), interAcoountAddress, null
-            ,account.getLockrepoFunds().subtract(destroyLockrepo)
+            ,account.getLockrepoFunds()
                     ,consumer.getPhoneNo(),null,setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName(),null));
             //内部账 收
             tranceDetails.add(createTranceDetail(tranNo,null, destroyLockrepo.negate(), Constants.EXPENSE.VALUE, Constants.EXPENSE.SourceType.DESTROY.getValue(), interAcoountAddress, account.getLockrepoAddress(), account.getId()
