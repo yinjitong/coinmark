@@ -476,7 +476,7 @@ public class StatisticsController {
 
                     SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     row.createCell(10).setCellValue(sdf.format(detail.getCreatedTime()));
-                    row.createCell(11).setCellValue(detail.getBalance()==null?"0.00": detail.getBalance().setScale(2, BigDecimal.ROUND_HALF_UP) + "");
+                    row.createCell(11).setCellValue(detail.getBalance()==null?"0.00": detail.getBalance().doubleValue() + "");
 //
                 }
             }
