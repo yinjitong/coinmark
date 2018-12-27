@@ -85,6 +85,7 @@ public class ConsumerController {
             response = consumerService.consumers(consumerQuery);
             try {
                 PageInfo<ConsumerInfoVO> consumersPageInfo = response.getData();
+
                 List<ConsumerInfoVO> list = consumersPageInfo.getList();
 
                 // 存在数据可以导出
