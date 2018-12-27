@@ -1,9 +1,7 @@
 package com.flc.coinmarket.admin;
 
 
-import com.flc.coinmarket.admin.service.ScheduledTaskService;
 import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;

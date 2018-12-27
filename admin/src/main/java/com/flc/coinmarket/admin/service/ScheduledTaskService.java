@@ -329,9 +329,9 @@ public class ScheduledTaskService {
         BigDecimal ratioLimit = getSysParameter(Constants.SYSTEM_PARAMETER.DESTROY_LOCKREPO_PARAM.DESTROY_LOCKREPO_LIMIT);
         limit = limit == null ? Constants.SYSTEM_PARAMETER.DEFAULT_LIMIT.DEFAULT_LIMIT : limit;
         ratioLimit = ratioLimit == null ? Constants.SYSTEM_PARAMETER.DEFAULT_LIMIT.DEFAULT_LIMIT : ratioLimit;
-        ConsumerCapitalAccountExample consumerCapitalAccountExample = new ConsumerCapitalAccountExample();
-        consumerCapitalAccountExample.createCriteria().andProfitsTodayLessThan(limit);
-        List<ConsumerCapitalAccount> capitalAccounts = consumerCapitalAccountMapper.selectByExample(consumerCapitalAccountExample);
+//        ConsumerCapitalAccountExample consumerCapitalAccountExample = new ConsumerCapitalAccountExample();
+//        consumerCapitalAccountExample.createCriteria().andProfitsTodayLessThan(limit);
+        List<ConsumerCapitalAccount> capitalAccounts = consumerCapitalAccountMapper.selectByExample(null);
         if (capitalAccounts == null || capitalAccounts.isEmpty()) {
             return;
         }
@@ -345,11 +345,15 @@ public class ScheduledTaskService {
         String interAcoountAddress = getInterAcoountAddress();
 
         for (ConsumerCapitalAccount account : capitalAccounts) {
+            //先清空每个账户的profitsToday
+            account.setProfitsToday(BigDecimal.ZERO);
+            consumerCapitalAccountMapper.updateByPrimaryKey(account);
+
             List<ConsumerCapitalAccount> leftTeam = consumerCapitalAccountMapper.selectLeftTeam(account.getConsumerId());
             List<ConsumerCapitalAccount> rightTeam = consumerCapitalAccountMapper.selectRightTeam(account.getConsumerId());
             BigDecimal teamProfits = settlementService.teamProfit(account, leftTeam, rightTeam, teamParamList, ratioLimit);
 
-            teamProfits = limit.compareTo(teamProfits.add(account.getProfitsToday())) > 0 ? teamProfits : limit.subtract(account.getProfitsToday());
+            teamProfits = limit.compareTo(teamProfits) > 0 ? teamProfits : limit;
 
             if (teamProfits.compareTo(new BigDecimal(0)) < 1) {
                 continue;
