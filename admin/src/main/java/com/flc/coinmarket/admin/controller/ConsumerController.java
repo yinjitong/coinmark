@@ -85,7 +85,6 @@ public class ConsumerController {
             response = consumerService.consumers(consumerQuery);
             try {
                 PageInfo<ConsumerInfoVO> consumersPageInfo = response.getData();
-
                 List<ConsumerInfoVO> list = consumersPageInfo.getList();
 
                 // 存在数据可以导出
@@ -126,7 +125,7 @@ public class ConsumerController {
                         row.createCell(4).setCellValue(consumer.getLockrepoFunds().doubleValue()+"");
                         row.createCell(5).setCellValue(consumer.getRefNickName());
                         row.createCell(6).setCellValue(consumer.getLeftNickName());
-                        row.createCell(7).setCellValue(consumer.getRefNickName());
+                        row.createCell(7).setCellValue(consumer.getRightNickName());
                         row.createCell(8).setCellValue(consumer.getCreatTime());
                         row.createCell(9).setCellValue(consumer.getLastLogin());
                     }
