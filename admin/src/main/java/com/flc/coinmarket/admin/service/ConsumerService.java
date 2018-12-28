@@ -273,7 +273,7 @@ public class ConsumerService {
             detailIn.setPhoneNoFrom(consumerParam.getPhoneNo());
 //          detailIn.setNickNameTo();
             detailIn.setNickNameFrom(consumerParam.getPhoneNo());
-            detail.setUpdatedTime(new Date());
+            detailIn.setUpdatedTime(new Date());
             detailIn.setBalance(consumerParam.getFloatingFunds()==null?BigDecimal.ZERO:consumerParam.getFloatingFunds());
             consumerTranceDetailDAO.insert(detailIn);
 
