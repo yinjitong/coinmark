@@ -487,33 +487,43 @@
         WHERE pathd NOT LIKE '%R%'and isleaf='1' and path_direction like #{pathD}  AND full_path LIKE #{refereeFullPath};
   </select>
   <select id="selectConsumerInfo" parameterType="com.flc.coinmarket.dao.pojo.ConsumerQuery" resultType="com.flc.coinmarket.dao.vo.ConsumerInfoVO">
-    SELECT * FROM (
     SELECT
     c.id,
     c.user_name userName,
     c.phone_no phoneNo,
-    ifnull(a.floating_funds,0)+ifnull(a.profits_funds,0)+ifnull(a.lockrepo_funds,0) totalFunds,
+    ifnull( a.floating_funds, 0 ) + ifnull( a.profits_funds, 0 ) + ifnull( a.lockrepo_funds, 0 ) totalFunds,
     a.floating_funds floatingFunds,
     a.lockrepo_funds lockrepoFunds,
     a.profits_funds profitsFunds,
     c.create_time createTime,
-    MAX(h.created_time) lastLoginTime,
     s.nick_name nickName,
-    c.delete_flag,c.referee,ifnull(sr.nick_name,co.account) refNickName,
-    ifnull(sl.nick_name,lc.account)  leftNickName,
-    ifnull(srr.nick_name,rc.account)  rightNickName
-    FROM consumer c
-    LEFT JOIN consumer_capital_account a ON c.id=a.consumer_id
-    LEFT JOIN consumer_login_history  h ON c.id=h.consumer_id
-    LEFT JOIN consumer_settings s ON c.id=s.consumer_id
-    LEFT JOIN consumer_settings sr on c.referee=sr.consumer_id
-    LEFT JOIN consumer co on c.referee=co.id
-    LEFT JOIN consumer lc on BINARY c.left_code=lc.team_pos_code
-    LEFT JOIN consumer_settings sl on lc.id=sl.consumer_id
-    LEFT JOIN consumer rc on BINARY c.right_code=rc.team_pos_code
-    LEFT JOIN consumer_settings srr on rc.id=srr.consumer_id
-    GROUP BY c.id) a
-    where 1=1 and delete_flag="0"
+    c.lastLoginTime lastLoginTime,
+    c.delete_flag,
+    c.referee,
+    ifnull( sr.nick_name, co.account ) refNickName,
+    ifnull( sl.nick_name, lc.account ) leftNickName,
+    ifnull( srr.nick_name, rc.account ) rightNickName
+    FROM
+    (
+    SELECT
+    c.*,
+    max( h.created_time ) lastLoginTime
+    FROM
+    consumer c
+    LEFT JOIN consumer_login_history h ON c.id = h.consumer_id where  delete_flag = "0"
+    GROUP BY
+    c.id
+    ) c
+    LEFT JOIN consumer_capital_account a ON c.id = a.consumer_id
+    LEFT JOIN consumer_settings s ON c.id = s.consumer_id
+    LEFT JOIN consumer_settings sr ON c.referee = sr.consumer_id
+    LEFT JOIN consumer co ON c.referee = co.id
+    LEFT JOIN consumer lc ON BINARY c.left_code = lc.team_pos_code
+    LEFT JOIN consumer_settings sl ON lc.id = sl.consumer_id
+    LEFT JOIN consumer rc ON BINARY c.right_code = rc.team_pos_code
+    LEFT JOIN consumer_settings srr ON rc.id = srr.consumer_id
+    ORDER BY
+    createTime DESC
     <if test="phoneNo != null">
       and phoneNo  like #{phoneNo}"%"
     </if>
