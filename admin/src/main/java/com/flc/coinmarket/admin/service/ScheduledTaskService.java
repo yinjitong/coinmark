@@ -621,7 +621,7 @@ public class ScheduledTaskService {
             tranceDetails.add(createTranceDetail(tranNo,account.getId(), releaseLockrepo, Constants.INCOME.VALUE, Constants.INCOME.SourceType.RELEASE_LOCK_REPO.getValue(), account.getFloatingAddress(), account.getLockrepoAddress(), null
             ,account.getFloatingFunds(),consumer.getPhoneNo(),consumer.getPhoneNo(),setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName(),setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName()));
             //锁仓地址 付
-            tranceDetails.add(createTranceDetail(tranNo,account.getId(), releaseLockrepo, Constants.INCOME.VALUE, Constants.EXPENSE.SourceType.LOCKREPO_RELESE.getValue(), account.getLockrepoAddress(), account.getFloatingAddress(), null
+            tranceDetails.add(createTranceDetail(tranNo,account.getId(), releaseLockrepo, Constants.EXPENSE.VALUE, Constants.EXPENSE.SourceType.LOCKREPO_RELESE.getValue(), account.getLockrepoAddress(), account.getFloatingAddress(), null
             ,account.getLockrepoFunds(),consumer.getPhoneNo(),consumer.getPhoneNo(),setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName(),setting.getNickName()==null?consumer.getPhoneNo():setting.getNickName()));
         }
         if (!tranceDetails.isEmpty()) {

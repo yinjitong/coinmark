@@ -310,6 +310,7 @@ public class TransactionalService {
         BuguQuery<ConsumerTranceDetail> buguQuery = consumerTranceDetailDAO.query();
         buguQuery.is("tranceType", transType);
         buguQuery.is("accountId", account.getId());
+        buguQuery.sortDesc("createdTime");
         buguQuery.pageSize(pageSie).pageNumber(query.getPageNo());
         List<ConsumerTranceDetail> results = buguQuery.results();
         int size = results.size();
