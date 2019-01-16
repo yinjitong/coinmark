@@ -1,6 +1,6 @@
 package com.flc.coinmarket.core.exception;
 
-public class MyException extends Exception{
+public class MyException extends RuntimeException{
     private  String message;
     private  String code;
 

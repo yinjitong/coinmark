@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("admin/manage/parameter")
@@ -312,6 +313,24 @@ public class SystemParameterManageController {
             response.setResponseMsg(ResponseCode.SERVER_FAILED.getMessage());
             return response;
         }
+    }
+
+    @PostMapping("sysparam/queryParamValue")
+    @ApiOperation(value = "根据param_code查询任意参数", notes = "根据param_code查询任意参数", tags = "其他参数",httpMethod = "POST")
+    @ApiImplicitParam(name = "ids", value = "参数ID集合", example = "[1,2]", required = true, dataType = "int")
+    public BaseResponse queryParamValue(@RequestBody Map map){
+        BaseResponse response;
+        try{
+            String paramValue = (String)map.get("paramCode");
+            response= systemParameterManageService.queryParamValue(paramValue);
+        }catch(Exception e){
+            e.printStackTrace();
+            logger.error(e.getMessage());
+            response=new BaseResponse();
+            response.setResponseCode(ResponseCode.SERVER_FAILED.getCode());
+            response.setResponseMsg(ResponseCode.SERVER_FAILED.getMessage());
+        }
+        return response;
     }
 
 }

@@ -169,7 +169,7 @@ public class ConsumerService {
      * @return
      */
     @Transactional
-    public BaseResponse<ConsumerWithBLOBs> add(ConsumerParam consumerParam) {
+    public BaseResponse<ConsumerWithBLOBs> add(ConsumerParam consumerParam) throws MyException {
         BaseResponse<ConsumerWithBLOBs> response = new BaseResponse<>();
         if (StringUtils.isBlank(consumerParam.getPhoneNo())) {
             response.setResponseCode(ResponseCode.PHONE_CANT_BE_NULL.getCode());
@@ -674,6 +674,9 @@ public class ConsumerService {
     @Transactional
     public BaseResponse batchTransfer(BatchTransferVO batchTransferVO) throws MyException {
         BaseResponse response = new BaseResponse();
+        if(batchTransferVO.getTransferAmt()!=null&&batchTransferVO.getTransferAmt().compareTo(BigDecimal.ZERO)<0){
+            throw new MyException("消费资金不能为负数！！！");
+        }
         //本次交易流水号
         String tranNo = UUID.randomUUID().toString().replace("-", "").toLowerCase();
 
@@ -994,24 +997,25 @@ public class ConsumerService {
      * @return
      * @throws Exception
      */
-    private  void addConsumer(ConsumerParam consumerParam) throws RuntimeException {
+    @Transactional
+    public  void addConsumer(ConsumerParam consumerParam) throws MyException {
         if (StringUtils.isBlank(consumerParam.getPhoneNo())) {
-           throw new RuntimeException("不能有手机号为空的数据！！！");
+           throw new MyException("不能有手机号为空的数据！！！");
         }
 
         if(!RegularCheck.isPhoneNo(consumerParam.getPhoneNo())){
-            throw new RuntimeException("手机号【"+consumerParam.getPhoneNo()+"】格式错误！！！");
+            throw new MyException("手机号【"+consumerParam.getPhoneNo()+"】格式错误！！！");
         }
 
         if(consumerParam.getFloatingFunds().compareTo(BigDecimal.ZERO)<0){
-                throw new RuntimeException("手机号为【"+consumerParam.getPhoneNo()+"】的消费资产为负数！！！");
+                throw new MyException("手机号为【"+consumerParam.getPhoneNo()+"】的消费资产为负数！！！");
         }
 
         if (StringUtils.isBlank(consumerParam.getPassWord())) {
-           throw new RuntimeException("手机号为【"+consumerParam.getPhoneNo()+"】的密码不能为空！！！");
+           throw new MyException("手机号为【"+consumerParam.getPhoneNo()+"】的密码不能为空！！！");
         }
         if(!RegularCheck.isNumAndChar(consumerParam.getPassWord())){
-            throw new RuntimeException("请输入6-10位的数字或字母！！！");
+            throw new MyException("请输入6-10位的数字或字母！！！");
         }
 
         String encodePwd = PasswordUtil.hashPassword(consumerParam.getPassWord());
@@ -1021,16 +1025,16 @@ public class ConsumerService {
         example.createCriteria().andAccountEqualTo(consumerParam.getPhoneNo()).andDeleteFlagEqualTo("0");
         List<ConsumerWithBLOBs> consumers = consumerMapper.selectByExampleWithBLOBs(example);
         if (consumers.size() != 0) {
-            throw new RuntimeException("手机号【"+consumerParam.getPhoneNo()+"】已被注册！！！");
+            throw new MyException("手机号【"+consumerParam.getPhoneNo()+"】已被注册！！！");
         }
         if ((StringUtils.isBlank(consumerParam.getRefereePhone()) && StringUtils.isNotBlank(consumerParam.getCodeDirection()))
                 || (StringUtils.isNotBlank(consumerParam.getRefereePhone()) && StringUtils.isBlank(consumerParam.getCodeDirection()))) {
-            throw new RuntimeException("请检查手机号为【" + consumerParam.getPhoneNo() + "】的推荐人手机号和推荐码方向！！！");
+            throw new MyException("请检查手机号为【" + consumerParam.getPhoneNo() + "】的推荐人手机号和推荐码方向！！！");
         }
         //如果推荐人手机号为空，或者左右点为空，则消费资金为零,不为零报错
         if (StringUtils.isNotBlank(consumerParam.getRefereePhone()) || StringUtils.isNotBlank(consumerParam.getCodeDirection())) {
             if (consumerParam.getFloatingFunds()==null||consumerParam.getFloatingFunds().compareTo(BigDecimal.ZERO) != 0) {
-                throw new RuntimeException("请修改手机号为【" + consumerParam.getPhoneNo() + "】用户的消费资产为0.00！！！");
+                throw new MyException("请修改手机号为【" + consumerParam.getPhoneNo() + "】用户的消费资产为0.00！！！");
             }
             consumerParam.setFloatingFunds(BigDecimal.ZERO);
         }
@@ -1038,7 +1042,7 @@ public class ConsumerService {
         ConsumerWithBLOBs consumerWithBLOBs = new ConsumerWithBLOBs();
         Integer tpc = getTeamPostCode();
         if (tpc == null) {
-            throw new RuntimeException("生成用户节点码错误！！！");
+            throw new MyException("生成用户节点码错误！！！");
         }
         String teamPosCode = ConvertUtil.convert10To62(tpc, 4);
         consumerWithBLOBs.setTeamPosCode(teamPosCode);
@@ -1049,9 +1053,9 @@ public class ConsumerService {
         String fullPathReferee = "";//节点码的全路径
 
         if (StringUtils.isBlank(consumerParam.getRefereePhone())&&StringUtils.isBlank(consumerParam.getCodeDirection())) {//无推荐码，顶级节点
-            consumerParam.setFullPath(teamPosCode);
-            consumerParam.setPathDirection("0");
-            consumerParam.setIsleaf("0");
+            consumerWithBLOBs.setFullPath(teamPosCode);
+            consumerWithBLOBs.setPathDirection("0");
+            consumerWithBLOBs.setIsleaf("0");
         } else {
 
             //获取推荐码
@@ -1059,21 +1063,23 @@ public class ConsumerService {
             refereeConsumerExample.createCriteria().andPhoneNoEqualTo(consumerParam.getRefereePhone()).andDeleteFlagEqualTo("0");
             List<Consumer> refereeConsumers = consumerMapper.selectByExample(refereeConsumerExample);
             if (refereeConsumers.size() == 0 || refereeConsumers.get(0) == null) {
-                throw new RuntimeException("手机号为【" + consumerParam.getRefereePhone() + "】的推荐人不存在！！！");
+                throw new MyException("手机号为【" + consumerParam.getRefereePhone() + "】的推荐人不存在！！！");
             }
             Integer refereeConsumerId = refereeConsumers.get(0).getId();
             ConsumerTwoDimensionCodeExample codeExample = new ConsumerTwoDimensionCodeExample();
             codeExample.createCriteria().andConsumerIdEqualTo(refereeConsumerId);
             List<ConsumerTwoDimensionCode> refereeTwoCode = consumerTwoDimensionCodeMapper.selectByExample(codeExample);
             if (refereeTwoCode.size() == 0 || refereeTwoCode.get(0) == null) {
-                throw new RuntimeException("手机号为【" + consumerParam.getRefereePhone() + "】的推荐人的二维码信息不存在！！！");
+                throw new MyException("手机号为【" + consumerParam.getRefereePhone() + "】的推荐人的二维码信息不存在！！！");
             }
             if (consumerParam.getCodeDirection().equals("0")) {//左
                 String leftDimesionCode = refereeTwoCode.get(0).getLeftDimesionCode();
                 consumerParam.setRefereeCode(leftDimesionCode);
-            } else {
+            } else if(consumerParam.getCodeDirection().equals("1")){
                 String rightDimensionCode = refereeTwoCode.get(0).getRightDimensionCode();
                 consumerParam.setRefereeCode(rightDimensionCode);
+            }else{
+                throw new MyException("只能填0或1");
             }
             ConsumerTwoDimensionCodeExample exampleCode = null;
             if (consumerParam.getRefereeCode().startsWith(Constants.DimensionCode.LEFT.getValue())) {//左码
@@ -1083,16 +1089,16 @@ public class ConsumerService {
                 exampleCode = new ConsumerTwoDimensionCodeExample();
                 exampleCode.createCriteria().andRightDimensionCodeEqualTo(consumerParam.getRefereeCode());
             } else {
-                throw new RuntimeException("推荐码错误");
+                throw new MyException("推荐码错误");
             }
             List<ConsumerTwoDimensionCode> consumerTwoDimensionCodes = consumerTwoDimensionCodeMapper.selectByExample(exampleCode);
             if (consumerTwoDimensionCodes.size() == 0) {//二维码错误
-                throw new RuntimeException("推荐码错误");
+                throw new MyException("推荐码错误");
             }
             //获得推荐人的节点码
             ConsumerWithBLOBs consumerReferee = consumerMapper.selectByPrimaryKey(consumerTwoDimensionCodes.get(0).getConsumerId());
             if (consumerReferee == null) {
-                throw new RuntimeException("获取推荐人信息错误");
+                throw new MyException("获取推荐人信息错误");
             }
             consumerWithBLOBs.setRefereeCode(consumerParam.getRefereeCode());
             consumerWithBLOBs.setReferee(consumerReferee.getId());
@@ -1131,7 +1137,7 @@ public class ConsumerService {
                 //推荐人的节点
                 List<ConsumerWithBLOBs> refereeConsumer = consumerMapper.selectByExampleWithBLOBs(consumerExample);
                 if (refereeConsumer.size() == 0) {
-                    throw new RuntimeException("推荐人");
+                    throw new MyException("推荐人");
                 }
                 //根据推荐人路径方向找到推荐人子节点，
                 // 即包含推荐人子节点的路径方向，截取完推荐人路径不包含R且叶子节点为1的人的全路径和路径方向
@@ -1211,7 +1217,7 @@ public class ConsumerService {
             sysDictionaryExample.createCriteria().andDicCodeEqualTo("inter_Account");
             List<SysDictionary> sysDictionaries = sysDictionaryMapper.selectByExample(sysDictionaryExample);
             if (sysDictionaries.size() == 0 || sysDictionaries.get(0) == null) {
-                throw new RuntimeException("内部账地址不存在！！！");
+                throw new MyException("内部账地址不存在！！！");
             }
             String inAddressValue = sysDictionaries.get(0).getDicValue();
 

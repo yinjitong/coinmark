@@ -11,8 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class SystemParameterManageService {
@@ -362,6 +365,30 @@ public class SystemParameterManageService {
         for (Integer id : ids) {
             sysParameterMapper.deleteByPrimaryKey(id);
         }
+        response.setResponseMsg(ResponseCode.OK.getMessage());
+        response.setResponseCode(ResponseCode.OK.getCode());
+        return response;
+    }
+
+    /**
+     * 根据paramCode查询paramValue
+     * @param paramCode
+     * @return
+     */
+    public BaseResponse queryParamValue(String paramCode) {
+        BaseResponse response = new BaseResponse<>();
+        SysParameterExample sysParameterExample=new SysParameterExample();
+        sysParameterExample.createCriteria().andParamCodeEqualTo(paramCode);
+        List<SysParameter> sysParameters = sysParameterMapper.selectByExample(sysParameterExample);
+        if(sysParameters.isEmpty()){
+            response.setResponseMsg(ResponseCode.PARAMETER_ISNULL.getMessage());
+            response.setResponseCode(ResponseCode.PARAMETER_ISNULL.getCode());
+            return response;
+        }
+        BigDecimal paramValue = sysParameters.get(0).getParamValue();
+        Map<String,BigDecimal> map=new HashMap<>();
+        map.put("paramValue",paramValue);
+        response.setData(map);
         response.setResponseMsg(ResponseCode.OK.getMessage());
         response.setResponseCode(ResponseCode.OK.getCode());
         return response;
