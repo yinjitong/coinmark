@@ -666,20 +666,10 @@ public class ConsumerService {
     }
 
     /**
-     * 批量转出
-     *
-     * @param batchTransferVO
+     * 查内部账地址
      * @return
      */
-    @Transactional
-    public BaseResponse batchTransfer(BatchTransferVO batchTransferVO) throws MyException {
-        BaseResponse response = new BaseResponse();
-        if(batchTransferVO.getTransferAmt()!=null&&batchTransferVO.getTransferAmt().compareTo(BigDecimal.ZERO)<0){
-            throw new MyException("消费资金不能为负数！！！");
-        }
-        //本次交易流水号
-        String tranNo = UUID.randomUUID().toString().replace("-", "").toLowerCase();
-
+    public String  getInterAddress() throws  MyException{
         //查询内部账地址
         SysDictionaryExample dictionaryExample = new SysDictionaryExample();
         dictionaryExample.createCriteria().andDicCodeEqualTo("inter_Account");
@@ -689,47 +679,92 @@ public class ConsumerService {
         }
         SysDictionary sysDictionary = sysDictionaries.get(0);
         String inAddressValue = sysDictionary.getDicValue();
+        return inAddressValue;
+    }
 
-        //计算手续费比例值
+    /**
+     * 计算手续费比例值
+     * @return
+     */
+    public  BigDecimal getFeeRate() throws  MyException{
         SysParameterExample sysParameterExample = new SysParameterExample();
         sysParameterExample.createCriteria().andParamCodeEqualTo("transaction_fee_rate");
         List<SysParameter> sysParameters = sysParameterMapper.selectByExample(sysParameterExample);
         if (sysParameters.size() == 0 || sysParameters.get(0) == null) {
-            response.setResponseCode(ResponseCode.FEE_NOT_HAVE.getCode());
-            response.setResponseMsg(ResponseCode.FEE_NOT_HAVE.getMessage());
-            return response;
+            throw new  MyException("手续费参数不存在");
         }
         BigDecimal paramValue = sysParameters.get(0).getParamValue();//转账手续费百分比
-        BigDecimal tranFee = batchTransferVO.getTransferAmt().multiply(paramValue);//每笔手续费
-        BigDecimal tranFeeTotal = batchTransferVO.getTransferAmt().multiply(paramValue)
-                .multiply(new BigDecimal(batchTransferVO.getTransfereePhones().size()));//总手续费
+        return paramValue;
+    }
 
-        BigDecimal payAccountBalance = BigDecimal.ZERO;
+    /**
+     * 查询手机号对应的用户
+     */
+    public  Consumer  getConsumerByPhone(String phone){
+        ConsumerExample consumerExample = new ConsumerExample();
+        consumerExample.createCriteria().andPhoneNoEqualTo(phone).andDeleteFlagEqualTo("0");
+        List<Consumer> consumers = consumerMapper.selectByExample(consumerExample);
+        if (consumers.size() == 0 || consumers.get(0) == null) {
+            throw new MyException("手机号【" + phone + "】对应的用户不存在！！！");
+        }
+        return   consumers.get(0);
+    }
+
+    /**
+     * 根据用户id查询其账户信息
+     * @param consumerId
+     * @return
+     */
+    public  ConsumerCapitalAccount getAccountByConsumerId(Integer consumerId){
+        ConsumerCapitalAccountExample accountExample = new ConsumerCapitalAccountExample();
+        accountExample.createCriteria().andConsumerIdEqualTo(consumerId);
+        List<ConsumerCapitalAccount> accounts = consumerCapitalAccountMapper.selectByExample(accountExample);
+        if (accounts.size() == 0 || accounts.get(0) == null) {
+           throw new MyException("当前用户账户不存在");
+        }
+        return accounts.get(0);
+    }
+    /**
+     * 批量转出
+     *
+     * @param batchTransferVO
+     * @return
+     */
+    @Transactional
+    public BaseResponse batchTransfer(BatchTransferVO batchTransferVO) throws MyException {
+        BaseResponse response = new BaseResponse();
+        if(batchTransferVO.getTransferAmt()==null||batchTransferVO.getTransferAmt().compareTo(BigDecimal.ZERO)<0){
+            throw new MyException("消费资金不能为空且不能为负数！！！");
+        }
+        if(!batchTransferVO.getAddressFlag().equals("0")&&!batchTransferVO.getAddressFlag().equals("1")){
+            throw new MyException("地址只能为消费或锁仓！！！");
+        }
+        //本次交易流水号
+        String tranNo = UUID.randomUUID().toString().replace("-", "").toLowerCase();
+        //查内部账地址
+        String inAddressValue = getInterAddress();
+        //计算手续费比例值
+        BigDecimal paramValue= getFeeRate();
+        //每笔手续费
+        BigDecimal tranFee = batchTransferVO.getTransferAmt().multiply(paramValue);
+        //总手续费
+        BigDecimal tranFeeTotal = batchTransferVO.getTransferAmt().multiply(paramValue)
+                .multiply(new BigDecimal(batchTransferVO.getTransfereePhones().size()));
 
         //付款人相关信息
+        BigDecimal payAccountBalance = BigDecimal.ZERO;//付款人账户余额
         Consumer payConsumer = new Consumer();
         ConsumerCapitalAccount payAccount = new ConsumerCapitalAccount();
         if (batchTransferVO.getTransferor().equals(Constants.Transferor.SYSTEM.getValue())) {//系统地址
             payAccount.setFloatingAddress(inAddressValue);
-        } else {
-            ConsumerExample consumerExample = new ConsumerExample();
-            consumerExample.createCriteria().andPhoneNoEqualTo(batchTransferVO.getTransferorPhone()).andDeleteFlagEqualTo("0");
-            List<Consumer> consumers = consumerMapper.selectByExample(consumerExample);
-            if (consumers.size() == 0 || consumers.get(0) == null) {
-                throw new MyException("手机号【" + batchTransferVO.getTransferorPhone() + "】对应的用户不存在！！！");
-            }
-            payConsumer = consumers.get(0);
-
-            ConsumerCapitalAccountExample accountExample = new ConsumerCapitalAccountExample();
-            accountExample.createCriteria().andConsumerIdEqualTo(payConsumer.getId());
-            List<ConsumerCapitalAccount> accounts = consumerCapitalAccountMapper.selectByExample(accountExample);
-            if (accounts.size() == 0 || accounts.get(0) == null) {
-                response.setResponseCode(ResponseCode.ACCONUT_NOT_HAVE.getCode());
-                response.setResponseMsg(ResponseCode.ACCONUT_NOT_HAVE.getMessage());
-                return response;
-            }
-            payAccount = accounts.get(0);
+        } else if (batchTransferVO.getTransferor().equals(Constants.Transferor.PERSONAL.getValue())) {
+           // 查询手机号对应的用户
+            payConsumer=getConsumerByPhone(batchTransferVO.getTransferorPhone());
+            //用戶id对应的账户信息
+            payAccount = getAccountByConsumerId(payConsumer.getId());
             payAccountBalance = payAccount.getFloatingFunds();
+        }else{
+            throw new MyException("转出方只能为系统或个人");
         }
         //为个人时，更新账户表流动资产
         if (batchTransferVO.getTransferor().equals(Constants.Transferor.PERSONAL.getValue())) {//个人
@@ -744,25 +779,8 @@ public class ConsumerService {
 
         for (String phone : batchTransferVO.getTransfereePhones()) {
             //收款人相关信息
-            ConsumerExample consumerExample = new ConsumerExample();
-            consumerExample.createCriteria().andPhoneNoEqualTo(phone).andDeleteFlagEqualTo("0");
-            List<Consumer> consumers = consumerMapper.selectByExample(consumerExample);
-            if (consumers.size() == 0 || consumers.get(0) == null) {
-                throw new MyException("手机号" + phone + "对应的收款人不存在！！！");
-            }
-            Consumer incomeConsumer = consumers.get(0);
-
-            ConsumerCapitalAccountExample accountExample = new ConsumerCapitalAccountExample();
-            accountExample.createCriteria().andConsumerIdEqualTo(incomeConsumer.getId());
-            List<ConsumerCapitalAccount> accounts = consumerCapitalAccountMapper.selectByExample(accountExample);
-            if (accounts.size() == 0 || accounts.get(0) == null) {
-                response.setResponseCode(ResponseCode.ACCONUT_NOT_HAVE.getCode());
-                response.setResponseMsg(ResponseCode.ACCONUT_NOT_HAVE.getMessage());
-                return response;
-            }
-            ConsumerCapitalAccount incomeAccount = accounts.get(0);
-
-
+            Consumer incomeConsumer = getConsumerByPhone(phone);
+            ConsumerCapitalAccount incomeAccount = getAccountByConsumerId(incomeConsumer.getId());
             //1.付 交易转出
             BigDecimal balance;
             if (batchTransferVO.getTransferor().equals(Constants.Transferor.PERSONAL.getValue())) {//个人
@@ -772,8 +790,8 @@ public class ConsumerService {
                 //更新内部账
                 balance = commonUpdateInter.updateInterBalance(batchTransferVO.getTransferAmt().negate());
             }
-
-            String floatingAddress= incomeAccount.getFloatingAddress();//流动地址
+            //流动地址
+            String floatingAddress= incomeAccount.getFloatingAddress();
             if(batchTransferVO.getAddressFlag().equals(Constants.AddressFlag.LOCKREPOADDRESS.getValue())){//锁仓地址
                 incomeAccount.setFloatingAddress(incomeAccount.getLockrepoAddress());
             }
@@ -782,10 +800,16 @@ public class ConsumerService {
                     balance, payAccount, incomeAccount, payConsumer, incomeConsumer);
             consumerTranceDetailDAO.insert(payDetail);
 
+            BigDecimal  incomeBalance;
             //2.收 交易转入
+            if(batchTransferVO.getAddressFlag().equals("0")){
+                incomeBalance=incomeAccount.getFloatingFunds().add(batchTransferVO.getTransferAmt());
+            }else{
+                incomeBalance=incomeAccount.getFloatingFunds();
+            }
             ConsumerTranceDetail incomeDetail = createTranceDetail(tranNo, batchTransferVO.getTransferAmt(),
                     Constants.INCOME.VALUE, Constants.INCOME.SourceType.TRANS_IN.getValue(),
-                    incomeAccount.getFloatingFunds().add(batchTransferVO.getTransferAmt()),
+                    incomeBalance,
                     incomeAccount, payAccount, incomeConsumer, payConsumer);
             consumerTranceDetailDAO.insert(incomeDetail);
 
@@ -1057,7 +1081,6 @@ public class ConsumerService {
             consumerWithBLOBs.setPathDirection("0");
             consumerWithBLOBs.setIsleaf("0");
         } else {
-
             //获取推荐码
             ConsumerExample refereeConsumerExample = new ConsumerExample();
             refereeConsumerExample.createCriteria().andPhoneNoEqualTo(consumerParam.getRefereePhone()).andDeleteFlagEqualTo("0");
