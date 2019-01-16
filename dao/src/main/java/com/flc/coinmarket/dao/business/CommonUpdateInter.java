@@ -29,7 +29,7 @@ public class CommonUpdateInter {
         BigDecimal interBalance = new BigDecimal(Double.parseDouble(dicValue));
         //更新内部账余额
         BigDecimal newInterBalance = BigDecimal.ZERO;
-        newInterBalance = interBalance.add(changeAmt);
+        newInterBalance = interBalance.add(changeAmt).setScale(8,BigDecimal.ROUND_HALF_UP);
         sysDictionary.setDicValue(newInterBalance + "");
         sysDictionaryMapper.updateByPrimaryKey(sysDictionary);
         //返回更新后余额
