@@ -19,32 +19,32 @@
 //
 //    private static int EXECUTE_STATUS = 0;
 //
-////    private String LOCKREPO_EXECUTE_DATE= dateFormat().format(new Date());
-//////    private String REFEREE_EXECUTE_DATE = dateFormat().format(new Date());（去掉推荐收益）
-////    private String TEAM_EXECUTE_DATE = dateFormat().format(new Date());
-////    private String RELEASE_EXECUTE_DATE= dateFormat().format(new Date());
-////    private String DESTROY_EXECUTE_DATE = dateFormat().format(new Date());
-//////  private String AUTO_REINVEST_EXECUTE_DATE= dateFormat().format(new Date());（与清仓合并）
-////    private String TRANS_COLLECT_EXECUTE_DATE= dateFormat().format(new Date());
+//    private String LOCKREPO_EXECUTE_DATE= dateFormat().format(new Date());
+////    private String REFEREE_EXECUTE_DATE = dateFormat().format(new Date());（去掉推荐收益）
+//    private String TEAM_EXECUTE_DATE = dateFormat().format(new Date());
+//    private String RELEASE_EXECUTE_DATE= dateFormat().format(new Date());
+//    private String DESTROY_EXECUTE_DATE = dateFormat().format(new Date());
+////  private String AUTO_REINVEST_EXECUTE_DATE= dateFormat().format(new Date());（与清仓合并）
+//    private String TRANS_COLLECT_EXECUTE_DATE= dateFormat().format(new Date());
 //
 //
-////    //测试用
-//    private String LOCKREPO_EXECUTE_DATE;
-////            = dateFormat().format(new Date());
-//    private String TEAM_EXECUTE_DATE ;
-////        = dateFormat().format(new Date());
-//    private String RELEASE_EXECUTE_DATE;
-////        = dateFormat().format(new Date());
-//    private String DESTROY_EXECUTE_DATE ;
-////        = dateFormat().format(new Date());
-//    private String TRANS_COLLECT_EXECUTE_DATE;
-////        = dateFormat().format(new Date());
+//////    //测试用
+////    private String LOCKREPO_EXECUTE_DATE;
+//////            = dateFormat().format(new Date());
+////    private String TEAM_EXECUTE_DATE ;
+//////        = dateFormat().format(new Date());
+////    private String RELEASE_EXECUTE_DATE;
+//////        = dateFormat().format(new Date());
+////    private String DESTROY_EXECUTE_DATE ;
+//////        = dateFormat().format(new Date());
+////    private String TRANS_COLLECT_EXECUTE_DATE;
+//////        = dateFormat().format(new Date());
 //
 //    @Autowired
 //    ScheduledTaskService scheduledTaskService;
 //
-////    @Scheduled(cron = "* * 1-6 * * ? ")
-//    @Scheduled(initialDelay = 10000L, fixedDelay = 1000000000000000000L)
+//    @Scheduled(cron = "* * 1-6 * * ? ")
+////    @Scheduled(initialDelay = 10000L, fixedDelay = 1000000000000000000L)
 //    public void autoRunMethod(){
 //        teamProfits();
 //        lockrepoProfits();
