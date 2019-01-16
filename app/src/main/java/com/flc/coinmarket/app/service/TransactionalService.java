@@ -4,8 +4,8 @@ import com.bugull.mongo.BuguQuery;
 import com.flc.coinmarket.core.base.BaseResponse;
 import com.flc.coinmarket.core.base.ResponseCode;
 import com.flc.coinmarket.core.constant.Constants;
-import com.flc.coinmarket.core.util.DateUtil;
 import com.flc.coinmarket.core.util.PasswordUtil;
+import com.flc.coinmarket.dao.business.CommonUpdateInter;
 import com.flc.coinmarket.dao.mongo.dao.ConsumerTranceDetailDAO;
 import com.flc.coinmarket.dao.mongo.model.ConsumerTranceDetail;
 import com.flc.coinmarket.dao.mysql.mapper.consumer.ConsumerCapitalAccountMapper;
@@ -17,6 +17,7 @@ import com.flc.coinmarket.dao.mysql.model.consumer.*;
 import com.flc.coinmarket.dao.mysql.model.system.SysDictionary;
 import com.flc.coinmarket.dao.mysql.model.system.SysDictionaryExample;
 import com.flc.coinmarket.dao.mysql.model.system.SysParameter;
+import com.flc.coinmarket.dao.mysql.model.system.SysParameterExample;
 import com.flc.coinmarket.dao.pojo.ConsumerTrance;
 import com.flc.coinmarket.dao.pojo.TransactionDetailQuery;
 import com.github.pagehelper.PageInfo;
@@ -42,6 +43,10 @@ public class TransactionalService {
     private SysDictionaryMapper sysDictionaryMapper;
     @Autowired
     private ConsumerMapper consumerMapper;
+    @Autowired
+    private CommonUpdateInter commonUpdateInter;
+
+
 
     /**
      * 对其他用户转账
@@ -53,8 +58,15 @@ public class TransactionalService {
     public BaseResponse toothers(ConsumerTrance consumerTrance, Integer consumerId) {
         BaseResponse response = new BaseResponse();
         //查询转账手续费
-        SysParameter sysParameter = sysParameterMapper.selectByPrimaryKey(8);
-        BigDecimal paramValue = sysParameter.getParamValue();
+        SysParameterExample sysParameterExample=new SysParameterExample();
+        sysParameterExample.createCriteria().andParamCodeEqualTo("transaction_fee_rate");
+        List<SysParameter> sysParameters = sysParameterMapper.selectByExample(sysParameterExample);
+        if(sysParameters.size()==0||sysParameters.get(0)==null){
+            response.setResponseCode(ResponseCode.FEE_NOT_HAVE.getCode());
+            response.setResponseMsg(ResponseCode.FEE_NOT_HAVE.getMessage());
+            return response;
+        }
+        BigDecimal paramValue = sysParameters.get(0).getParamValue();
         BigDecimal tranFee = paramValue.multiply(consumerTrance.getFunds());
 
         //查询收款方账户
@@ -108,16 +120,6 @@ public class TransactionalService {
         //查询付款方用户信息
         ConsumerWithBLOBs payConsumer = consumerMapper.selectByPrimaryKey(consumerId);
 
-        //查询内部账地址
-        SysDictionaryExample dictionaryExample = new SysDictionaryExample();
-        dictionaryExample.createCriteria().andDicCodeEqualTo("inter_Account");
-        List<SysDictionary> sysDictionaries = sysDictionaryMapper.selectByExample(dictionaryExample);
-        if (sysDictionaries.size() == 0 || sysDictionaries.get(0) == null) {
-            throw new RuntimeException("内部账地址不存在！！！");
-        }
-        SysDictionary sysDictionary = sysDictionaries.get(0);
-        String inAddressValue = sysDictionary.getDicValue();
-
         //本次交易流水号
         String tranNo = UUID.randomUUID().toString().replace("-", "").toLowerCase();
 
@@ -144,10 +146,15 @@ public class TransactionalService {
             return response;
         }
 
-        //查询内部账号余额
-        BuguQuery<ConsumerTranceDetail> query = consumerTranceDetailDAO.query();
-        List<ConsumerTranceDetail> results = query.in("transferAddressFrom", inAddressValue).sortDesc("updatedTime").results();
-
+        //查询内部账地址
+        SysDictionaryExample dictionaryExample = new SysDictionaryExample();
+        dictionaryExample.createCriteria().andDicCodeEqualTo("inter_Account");
+        List<SysDictionary> sysDictionaries = sysDictionaryMapper.selectByExample(dictionaryExample);
+        if (sysDictionaries.size() == 0 || sysDictionaries.get(0) == null) {
+            throw new RuntimeException("内部账地址不存在！！！");
+        }
+        SysDictionary sysDictionary = sysDictionaries.get(0);
+        String inAddressValue = sysDictionary.getDicValue();
         //付 交易转出
         BigDecimal floatingBalance=payAccount.getFloatingFunds().subtract(consumerTrance.getFunds());
         ConsumerTranceDetail payDetail = createTranceDetail(tranNo, payAccount.getId(), consumerTrance.getFunds(), Constants.EXPENSE.VALUE, Constants.EXPENSE.SourceType.TRANS_OUT.getValue()
@@ -171,10 +178,11 @@ public class TransactionalService {
                 payConsumerSetting.getNickName() == null ? payConsumer.getPhoneNo() : payConsumerSetting.getNickName());
         consumerTranceDetailDAO.insert(incomeDetail);
 
+        //查询内部账余额
+        BigDecimal interBalance = commonUpdateInter.updateInterBalance(tranFee);
         //收  内部账手续费收
         ConsumerTranceDetail incomeFeeDetail = createTranceDetail(tranNo,null,tranFee.negate(), Constants.EXPENSE.VALUE, Constants.EXPENSE.SourceType.TRANS_FEE.getValue()
-                ,inAddressValue,payAccount.getFloatingAddress(), consumerId,results.size() == 0 || results.get(0) == null ? BigDecimal.ZERO.add(tranFee) : results.get(0).getBalance().add(tranFee)
-                , null,payConsumer.getPhoneNo(),null ,
+                ,inAddressValue,payAccount.getFloatingAddress(), consumerId,interBalance, null,payConsumer.getPhoneNo(),null ,
                 payConsumerSetting.getNickName() == null ? payConsumer.getPhoneNo() : payConsumerSetting.getNickName());
         consumerTranceDetailDAO.insert(incomeFeeDetail);
 
@@ -251,7 +259,7 @@ public class TransactionalService {
         String tranNo = UUID.randomUUID().toString().replace("-", "").toLowerCase();
         //消费资产付
         ConsumerTranceDetail detailPay = createTranceDetail(tranNo, account.getId(), consumerTrance.getFunds(), Constants.EXPENSE.VALUE, Constants.EXPENSE.SourceType.FLOAT_LOCK.getValue()
-                , account.getFloatingAddress(), account.getLockrepoAddress(), null, account.getFloatingFunds().subtract(consumerTrance.getFunds())
+                , account.getFloatingAddress(), account.getLockrepoAddress(), account.getId(), account.getFloatingFunds().subtract(consumerTrance.getFunds())
                 , consumer.getPhoneNo(), consumer.getPhoneNo(), consumerSetting.getNickName() == null ? consumer.getPhoneNo() : consumerSetting.getNickName(),
                 consumerSetting.getNickName() == null ? consumer.getPhoneNo() : consumerSetting.getNickName());
 
@@ -259,7 +267,7 @@ public class TransactionalService {
 
         //锁仓资产收
         ConsumerTranceDetail detailIn = createTranceDetail(tranNo, account.getId(), consumerTrance.getFunds(), Constants.INCOME.VALUE, Constants.INCOME.SourceType.LOCK_FLOAT.getValue()
-                ,account.getLockrepoAddress(), account.getFloatingAddress(), null,account.getLockrepoFunds().add(consumerTrance.getFunds())
+                ,account.getLockrepoAddress(), account.getFloatingAddress(), account.getId(),account.getLockrepoFunds().add(consumerTrance.getFunds())
                 , consumer.getPhoneNo(), consumer.getPhoneNo(), consumerSetting.getNickName() == null ? consumer.getPhoneNo() : consumerSetting.getNickName(),
                 consumerSetting.getNickName() == null ? consumer.getPhoneNo() : consumerSetting.getNickName());
         consumerTranceDetailDAO.insert(detailIn);
