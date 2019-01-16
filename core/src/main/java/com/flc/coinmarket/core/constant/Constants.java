@@ -135,4 +135,43 @@ public interface Constants {
         }
     }
 
+    enum  Transferor{
+        SYSTEM("系统", "0"),
+        PERSONAL("个人", "1");
+        private Transferor(String name, String value){
+            this.name = name;
+            this.value = value;
+        }
+        String name;
+        String value;
+
+        public String getValue() {
+            return value;
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
+
+    enum  AddressFlag{
+        FLOATINGADDRESS("消费地址", "0"),
+        LOCKREPOADDRESS("锁仓地址", "1");
+        private AddressFlag(String name, String value){
+            this.name = name;
+            this.value = value;
+        }
+        String name;
+        String value;
+
+        public String getValue() {
+            return value;
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
+
+
 }

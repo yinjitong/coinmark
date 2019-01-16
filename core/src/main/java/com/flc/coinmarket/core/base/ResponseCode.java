@@ -23,6 +23,9 @@ public enum ResponseCode {
     PARAMCODE_CANT_BE_NULL(3013,"参数编码不能为空"),
     PARAMNAME_CANT_BE_NULL(3014,"参数名称不能为空"),
     PARAMVALUE_CANT_BE_NULL(3015,"参数值不能为空"),
+    IMPORT_EXCEL_WRONG(3016,"上传文件格式不正确！！！"),
+    EXCEL_NULL(3017,"表格无数据！！！"),
+
 
 
     TOKEN_TIME_OUT(4000,"token失效"),
@@ -56,7 +59,11 @@ public enum ResponseCode {
     REINVEST_HAS_OPEN(4028,"自动复投已开启！！！"),
     REINVEST_HAS_CLOSE(4029,"自动复投已关闭！！！"),
     TOKEN_CREATE_WRONG(4030,"token生成失败！！！"),
-    OPPO_SETTING_NOT_HAVE(4031,"对方用户设置信息不存在！！！")
+    OPPO_SETTING_NOT_HAVE(4031,"对方用户设置信息不存在！！！"),
+    FEE_NOT_HAVE(4032,"手续费参数不存在！！！"),
+    PHONE_NO_INVALID(4033,"手机号未注册或已被删除！"),
+    PHONE_NOT_UPDATE(4034,"手机号一致"),
+    PHONE_WRONG(4035,"手机号错误"),
     ;
 
     private int code;

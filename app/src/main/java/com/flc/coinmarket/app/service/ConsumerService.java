@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.flc.coinmarket.app.volidate.DateValidate;
 import com.flc.coinmarket.core.constant.Constants;
+import com.flc.coinmarket.core.exception.MyException;
 import com.flc.coinmarket.core.util.*;
 import com.flc.coinmarket.dao.mysql.mapper.consumer.*;
 import com.flc.coinmarket.core.base.BaseResponse;
@@ -32,7 +33,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -157,35 +157,9 @@ public class ConsumerService {
             response.setResponseMsg(ResponseCode.PHONE_HAS_REGIST.getMessage());
             return response;
         }
-        //查询最新时间的验证码，时间不超过24小时，标志位有效
-        ConsumerCheckCode consumerCheckCode = consumerCheckCodeMapper.selectCheckCode(consumerRegist.getPhoneNo(), "regist");
-        if (consumerCheckCode == null) {
-            response.setResponseCode(ResponseCode.CHCEK_CODE_WRONG.getCode());
-            response.setResponseMsg(ResponseCode.CHCEK_CODE_WRONG.getMessage());
-            return response;
-        }
-        String checkcodesession = consumerCheckCode.getCheckCode();
-        //判断验证码是否输入正确
-        if (StringUtils.isBlank(consumerRegist.getCheckcode()) || StringUtils.isBlank(
-                checkcodesession) || !consumerRegist.getCheckcode().equals(checkcodesession)) {
-            response.setResponseCode(ResponseCode.CHCEK_CODE_WRONG.getCode());
-            response.setResponseMsg(ResponseCode.CHCEK_CODE_WRONG.getMessage());
-            return response;
-        }
 
-        Calendar c = Calendar.getInstance();
-        c.add(Calendar.DATE, -1);
-        Date time = c.getTime();
-        Date createdTime = consumerCheckCode.getCreatedTime();
-        //判断验证码是否已过期
-        if (createdTime.before(time)) {
-            response.setResponseCode(ResponseCode.CHECK_CODE_TIME_OUT.getCode());
-            response.setResponseMsg(ResponseCode.CHECK_CODE_TIME_OUT.getMessage());
-            return response;
-        }
-        //验证码更新为已使用
-        consumerCheckCode.setInvalidFlag("1");
-        consumerCheckCodeMapper.updateByPrimaryKey(consumerCheckCode);
+        //验证码校验
+        dealCheckCode(consumerRegist.getPhoneNo(),consumerRegist.getCheckcode(),"regist");
 
         //登记客户记录
         ConsumerWithBLOBs consumerWithBLOBs = new ConsumerWithBLOBs();
@@ -483,7 +457,7 @@ public class ConsumerService {
      * @return
      */
     @Transactional
-    public BaseResponse changeFundspswd(ConsumerPwdQuery consumerPwdQuery, Integer consumerId) {
+    public BaseResponse changeFundspswd(ConsumerPwdQuery consumerPwdQuery, Integer consumerId) throws MyException {
         BaseResponse response = new BaseResponse();
         if (consumerPwdQuery.getPassWord() == null) {
             response.setResponseCode(ResponseCode.PWD_CANT_BE_NULL.getCode());
@@ -491,35 +465,8 @@ public class ConsumerService {
             return response;
         }
 
-//        查询最新时间的验证码，标志位有效
-        ConsumerCheckCode consumerCheckCode = consumerCheckCodeMapper.selectCheckCode(consumerPwdQuery.getPhoneNo(), "updateFundsPwd");
-        if (consumerCheckCode == null) {
-            response.setResponseCode(ResponseCode.CHECK_CODE_TIME_OUT.getCode());
-            response.setResponseMsg(ResponseCode.CHECK_CODE_TIME_OUT.getMessage());
-            return response;
-        }
-        String checkcodesession = consumerCheckCode.getCheckCode();
-        //判断验证码是否输入正确
-        if (StringUtils.isBlank(consumerPwdQuery.getCheckcode()) || StringUtils.isBlank(
-                checkcodesession) || !consumerPwdQuery.getCheckcode().equals(checkcodesession)) {
-            response.setResponseCode(ResponseCode.CHCEK_CODE_WRONG.getCode());
-            response.setResponseMsg(ResponseCode.CHCEK_CODE_WRONG.getMessage());
-            return response;
-        }
-
-        Calendar c = Calendar.getInstance();
-        c.add(Calendar.DATE, -1);
-        Date time = c.getTime();
-        Date createdTime = consumerCheckCode.getCreatedTime();
-        //判断验证码是否已过期
-        if (createdTime.before(time)) {
-            response.setResponseCode(ResponseCode.CHECK_CODE_TIME_OUT.getCode());
-            response.setResponseMsg(ResponseCode.CHECK_CODE_TIME_OUT.getMessage());
-            return response;
-        }
-        //验证码更新为已使用
-        consumerCheckCode.setInvalidFlag("1");
-        consumerCheckCodeMapper.updateByPrimaryKey(consumerCheckCode);
+        //更新验证码
+        dealCheckCode(consumerPwdQuery.getPhoneNo(),consumerPwdQuery.getCheckcode(),"updateFundsPwd");
 
         //更改用户设置表的资金密码
         ConsumerSettingsExample consumerSettingsExample = new ConsumerSettingsExample();
@@ -703,11 +650,11 @@ public class ConsumerService {
      * @param consumerPwdQuery
      * @return
      */
-    public BaseResponse forgetPwd(ConsumerPwdQuery consumerPwdQuery) {
+    public BaseResponse forgetPwd(ConsumerPwdQuery consumerPwdQuery) throws MyException{
         BaseResponse response = new BaseResponse();
         //更据账号（即手机号）查询用户信息consumer
         ConsumerExample consumerExample = new ConsumerExample();
-        consumerExample.createCriteria().andAccountEqualTo(consumerPwdQuery.getPhoneNo());
+        consumerExample.createCriteria().andAccountEqualTo(consumerPwdQuery.getPhoneNo()).andDeleteFlagEqualTo("0");
         List<Consumer> consumers = consumerMapper.selectByExample(consumerExample);
         if (consumers.size() == 0) {
             response.setResponseMsg(ResponseCode.PHONE_NOT_REGIST.getMessage());
@@ -720,37 +667,8 @@ public class ConsumerService {
             response.setResponseMsg(ResponseCode.SERVER_FAILED.getMessage());
             return response;
         }
-
-        //查询最新时间的验证码，标志位有效
-        ConsumerCheckCode consumerCheckCode = consumerCheckCodeMapper.selectCheckCode(consumerPwdQuery.getPhoneNo(), "forgetPwd");
-        if (consumerCheckCode == null) {
-            response.setResponseCode(ResponseCode.CHECK_CODE_TIME_OUT.getCode());
-            response.setResponseMsg(ResponseCode.CHECK_CODE_TIME_OUT.getMessage());
-            return response;
-        }
-        String checkcodesession = consumerCheckCode.getCheckCode();
-        //判断验证码是否输入正确
-        if (StringUtils.isBlank(consumerPwdQuery.getCheckcode()) || StringUtils.isBlank(
-                checkcodesession) || !consumerPwdQuery.getCheckcode().equals(checkcodesession)) {
-            response.setResponseCode(ResponseCode.CHCEK_CODE_WRONG.getCode());
-            response.setResponseMsg(ResponseCode.CHCEK_CODE_WRONG.getMessage());
-            return response;
-        }
-
-        Calendar c = Calendar.getInstance();
-        c.add(Calendar.DATE, -1);
-        Date time = c.getTime();
-        Date createdTime = consumerCheckCode.getCreatedTime();
-        //判断验证码是否已过期
-        if (createdTime.before(time)) {
-            response.setResponseCode(ResponseCode.CHECK_CODE_TIME_OUT.getCode());
-            response.setResponseMsg(ResponseCode.CHECK_CODE_TIME_OUT.getMessage());
-            return response;
-        }
-        //验证码更新为已使用
-        consumerCheckCode.setInvalidFlag("1");
-        consumerCheckCodeMapper.updateByPrimaryKey(consumerCheckCode);
-
+        //更新验证码
+        dealCheckCode(consumerPwdQuery.getPhoneNo(),consumerPwdQuery.getCheckcode(),"forgetPwd");
 
         //更改密码
         String encodepassword = PasswordUtil.hashPassword(consumerPwdQuery.getPassWord());
@@ -941,5 +859,135 @@ public class ConsumerService {
             response.setResponseMsg(ResponseCode.ACCONUT_NOT_HAVE.getMessage());
             return response;
         }
+    }
+
+
+    /**
+     * 修改手机号，验证原手机号验证码
+     * @param updatePhoneNoQuery
+     * @return
+     */
+    public BaseResponse checkOrgPhone(Integer consumerId,UpdatePhoneNoQuery updatePhoneNoQuery) throws MyException{
+        BaseResponse response=new BaseResponse();
+        //判断原手机号是否为当前用户的手机号
+        ConsumerWithBLOBs consumerWithBLOBs = consumerMapper.selectByPrimaryKey(consumerId);
+        if(!consumerWithBLOBs.getPhoneNo().equals(updatePhoneNoQuery.getOrgPhoneNo())){
+            response.setResponseMsg(ResponseCode.PHONE_WRONG.getMessage());
+            response.setResponseCode(ResponseCode.PHONE_WRONG.getCode());
+            return response;
+        }
+        //获取原手机号验证码
+        dealCheckCode(updatePhoneNoQuery.getOrgPhoneNo(),updatePhoneNoQuery.getOrgCheckCode(),"updatePhoneNoOrg");
+
+        response.setResponseMsg(ResponseCode.OK.getMessage());
+        response.setResponseCode(ResponseCode.OK.getCode());
+        return response;
+    }
+
+    /**
+     * 修改手机号
+     * @param parseInt
+     * @param updatePhoneNoQuery
+     * @return
+     */
+    @Transactional
+    public BaseResponse updatePhoneNo(int parseInt, UpdatePhoneNoQuery updatePhoneNoQuery) throws MyException{
+        BaseResponse response=new BaseResponse();
+        if(updatePhoneNoQuery.getNewPhoneNo()==null){
+            response.setResponseCode(ResponseCode.PHONE_CANTNULL.getCode());
+            response.setResponseMsg(ResponseCode.PHONE_CANTNULL.getMessage());
+            return response;
+        }
+        if(updatePhoneNoQuery.getOrgPhoneNo()==null){
+            response.setResponseCode(ResponseCode.PHONE_CANTNULL.getCode());
+            response.setResponseMsg(ResponseCode.PHONE_CANTNULL.getMessage());
+            return response;
+        }
+        if(updatePhoneNoQuery.getNewCheckCode()==null){
+            response.setResponseCode(ResponseCode.CHCEK_CODE_WRONG.getCode());
+            response.setResponseMsg(ResponseCode.CHCEK_CODE_WRONG.getMessage());
+            return response;
+        }
+        if(updatePhoneNoQuery.getNewPhoneNo().equals(updatePhoneNoQuery.getOrgPhoneNo())){
+            response.setResponseCode(ResponseCode.PHONE_NOT_UPDATE.getCode());
+            response.setResponseMsg(ResponseCode.PHONE_NOT_UPDATE.getMessage());
+            return response;
+        }
+        //获取新手机号验证码
+        dealCheckCode(updatePhoneNoQuery.getNewPhoneNo(),updatePhoneNoQuery.getNewCheckCode(),"updatePhoneNoNew");
+
+        //修改用户账号和手机号
+        ConsumerExample consumerExample=new ConsumerExample();
+        consumerExample.createCriteria().andAccountEqualTo(updatePhoneNoQuery.getOrgPhoneNo()).andDeleteFlagEqualTo("0");
+        List<Consumer> consumers = consumerMapper.selectByExample(consumerExample);
+        if(consumers.size()==0||consumers.get(0)==null){
+            response.setResponseCode(ResponseCode.PHONE_NO_INVALID.getCode());
+            response.setResponseMsg(ResponseCode.PHONE_NO_INVALID.getMessage());
+            return response;
+        }
+
+        ConsumerExample consumerExampleNew=new ConsumerExample();
+        consumerExampleNew.createCriteria().andAccountEqualTo(updatePhoneNoQuery.getNewPhoneNo()).andDeleteFlagEqualTo("0");
+        List<Consumer> consumersNew = consumerMapper.selectByExample(consumerExampleNew);
+        if(!consumersNew.isEmpty()){
+            response.setResponseCode(ResponseCode.PHONE_HAS_REGIST.getCode());
+            response.setResponseMsg(ResponseCode.PHONE_HAS_REGIST.getMessage());
+            return response;
+        }
+
+        Consumer consumer= consumers.get(0);
+        consumer.setPhoneNo(updatePhoneNoQuery.getNewPhoneNo());
+        consumer.setAccount(updatePhoneNoQuery.getNewPhoneNo());
+        //昵称如果是手机号，根据手机号的改变而改变
+        ConsumerSettingsExample consumerSettingsExample=new ConsumerSettingsExample();
+        consumerSettingsExample.createCriteria().andConsumerIdEqualTo(consumer.getId());
+        List<ConsumerSettings> settings = consumerSettingsMapper.selectByExample(consumerSettingsExample);
+        if(settings.isEmpty()){
+            response.setResponseCode(ResponseCode.SETTING_NOT_HAVE.getCode());
+            response.setResponseMsg(ResponseCode.SETTING_NOT_HAVE.getMessage());
+            return response;
+        }
+        ConsumerSettings consumerSettings = settings.get(0);
+        if(consumerSettings.getNickName().equals(updatePhoneNoQuery.getOrgPhoneNo())){
+            consumerSettings.setNickName(updatePhoneNoQuery.getNewPhoneNo());
+            consumerSettingsMapper.updateByPrimaryKey(consumerSettings);
+        }
+        consumerMapper.updateByPrimaryKey(consumer);
+        response.setResponseCode(ResponseCode.OK.getCode());
+        response.setResponseMsg(ResponseCode.OK.getMessage());
+        return  response;
+    }
+
+
+    /**
+     * 验证码
+     * @param phoneNo
+     * @param checkCode
+     * @param standFor
+     */
+    private  void dealCheckCode(String phoneNo,String checkCode,String standFor)throws MyException{
+        //查询最新时间的验证码，标志位有效
+        ConsumerCheckCode consumerCheckCode = consumerCheckCodeMapper.selectCheckCode(phoneNo, standFor);
+        if (consumerCheckCode == null) {
+            throw new MyException("验证码失效，请重新发送！！！");
+        }
+        String checkcodesession = consumerCheckCode.getCheckCode();
+        //判断验证码是否输入正确
+        if (StringUtils.isBlank(checkCode) || StringUtils.isBlank(
+                checkcodesession) || !checkCode.equals(checkcodesession)) {
+             throw new MyException("验证码输入错误");
+        }
+
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DATE, -1);
+        Date time = c.getTime();
+        Date createdTime = consumerCheckCode.getCreatedTime();
+        //判断验证码是否已过期
+        if (createdTime.before(time)) {
+           throw new MyException("验证码已过期");
+        }
+        //验证码更新为已使用
+        consumerCheckCode.setInvalidFlag("1");
+        consumerCheckCodeMapper.updateByPrimaryKey(consumerCheckCode);
     }
 }

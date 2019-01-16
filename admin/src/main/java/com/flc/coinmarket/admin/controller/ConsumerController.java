@@ -3,6 +3,7 @@ package com.flc.coinmarket.admin.controller;
 import com.flc.coinmarket.admin.service.ConsumerService;
 import com.flc.coinmarket.core.base.ResponseCode;
 import com.flc.coinmarket.core.base.BaseResponse;
+import com.flc.coinmarket.core.exception.MyException;
 import com.flc.coinmarket.dao.mongo.model.ConsumerTranceDetail;
 import com.flc.coinmarket.dao.mysql.model.consumer.Consumer;
 import com.flc.coinmarket.dao.mysql.model.statistics.*;
@@ -12,6 +13,7 @@ import com.flc.coinmarket.dao.pojo.TransactionDetailQuery;
 import com.flc.coinmarket.dao.vo.ConsumerInfoVO;
 import com.flc.coinmarket.dao.vo.ConsumerTeamVO;
 import com.flc.coinmarket.dao.vo.EchartsPieVO;
+import com.flc.coinmarket.dao.vo.BatchTransferVO;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -25,10 +27,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-import java.math.BigDecimal;
+import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Date;
 import java.util.List;
@@ -62,7 +66,7 @@ public class ConsumerController {
 
     @PostMapping("consumers")
     @ApiOperation(value = "app用户列表", notes = "app用户列表", tags = "用户维护", httpMethod = "GET")
-    public BaseResponse<PageInfo<ConsumerInfoVO>> consumers(@RequestBody  ConsumerQuery consumerQuery) {
+    public BaseResponse<PageInfo<ConsumerInfoVO>> consumers(@RequestBody ConsumerQuery consumerQuery) {
         BaseResponse<PageInfo<ConsumerInfoVO>> response;
         try {
             response = consumerService.consumers(consumerQuery);
@@ -77,10 +81,10 @@ public class ConsumerController {
 
     @GetMapping("exportXlsConsumers")
     @ApiOperation(value = "导出app用户列表", notes = "导出app用户列表", tags = "用户维护", httpMethod = "GET")
-    public void exportXlsConsumers( HttpServletResponse servletResponse) {
+    public void exportXlsConsumers(HttpServletResponse servletResponse) {
         BaseResponse<PageInfo<ConsumerInfoVO>> response;
         try {
-            ConsumerQuery consumerQuery=new ConsumerQuery();
+            ConsumerQuery consumerQuery = new ConsumerQuery();
             consumerQuery.setPageSize(Integer.MAX_VALUE);
             response = consumerService.consumers(consumerQuery);
             try {
@@ -120,9 +124,9 @@ public class ConsumerController {
                         // 3.2创建行的列,给列赋值
                         row.createCell(0).setCellValue(consumer.getNickName());
                         row.createCell(1).setCellValue(consumer.getPhoneNo());
-                        row.createCell(2).setCellValue(consumer.getTotalFunds().doubleValue()+"");
-                        row.createCell(3).setCellValue(consumer.getFloatingFunds().doubleValue()+"");
-                        row.createCell(4).setCellValue(consumer.getLockrepoFunds().doubleValue()+"");
+                        row.createCell(2).setCellValue(consumer.getTotalFunds().doubleValue() + "");
+                        row.createCell(3).setCellValue(consumer.getFloatingFunds().doubleValue() + "");
+                        row.createCell(4).setCellValue(consumer.getLockrepoFunds().doubleValue() + "");
                         row.createCell(5).setCellValue(consumer.getRefNickName());
                         row.createCell(6).setCellValue(consumer.getLeftNickName());
                         row.createCell(7).setCellValue(consumer.getRightNickName());
@@ -144,7 +148,7 @@ public class ConsumerController {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                logger.error(e.getMessage(),e);
+                logger.error(e.getMessage(), e);
             }
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -160,12 +164,13 @@ public class ConsumerController {
         BaseResponse response;
         try {
             response = consumerService.add(consumerParam);
-        }catch(RuntimeException e){
+        } catch (RuntimeException e) {
             e.printStackTrace();
             logger.error(e.getMessage());
             response = new BaseResponse<>();
+            response.setResponseCode(ResponseCode.SERVER_FAILED.getCode());
             response.setResponseMsg(e.getMessage());
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             logger.error(e.getMessage());
             response = new BaseResponse<>();
@@ -184,10 +189,11 @@ public class ConsumerController {
         BaseResponse<Consumer> response;
         try {
             response = consumerService.delete(id);
-        }catch(RuntimeException e){
+        } catch (RuntimeException e) {
             e.printStackTrace();
             logger.error(e.getMessage());
             response = new BaseResponse<>();
+            response.setResponseCode(ResponseCode.SERVER_FAILED.getCode());
             response.setResponseMsg(e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
@@ -208,12 +214,13 @@ public class ConsumerController {
         BaseResponse<Consumer> response;
         try {
             response = consumerService.deleteBatch(ids);
-        } catch(RuntimeException e){
+        } catch (RuntimeException e) {
             e.printStackTrace();
             logger.error(e.getMessage());
             response = new BaseResponse<>();
+            response.setResponseCode(ResponseCode.SERVER_FAILED.getCode());
             response.setResponseMsg(e.getMessage());
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             logger.error(e.getMessage());
             response = new BaseResponse<>();
@@ -230,7 +237,7 @@ public class ConsumerController {
             @ApiImplicitParam(name = "startDate", value = "起始时间", example = "2018-01-01", required = true, dataType = "date"),
             @ApiImplicitParam(name = "endDate", value = "截止时间", example = "2018-01-01", required = true, dataType = "date")
     })
-    public BaseResponse<List<ConsumerCapitalTotal>> capitalTotal(@PathVariable Integer id, @DateTimeFormat(pattern="yyyy-MM-dd")Date startDate,@DateTimeFormat(pattern="yyyy-MM-dd") Date endDate) {
+    public BaseResponse<List<ConsumerCapitalTotal>> capitalTotal(@PathVariable Integer id, @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate, @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate) {
         BaseResponse<List<ConsumerCapitalTotal>> response;
         try {
             response = consumerService.consumerCapitalTotal(id, startDate, endDate);
@@ -268,7 +275,7 @@ public class ConsumerController {
             @ApiImplicitParam(name = "startDate", value = "起始时间", example = "2018-01-01", required = true, dataType = "date"),
             @ApiImplicitParam(name = "endDate", value = "截止时间", example = "2018-01-01", required = true, dataType = "date")
     })
-    public BaseResponse<List<ConsumerProfitsTotal>> profitsTotal(@PathVariable Integer id,@DateTimeFormat(pattern="yyyy-MM-dd") Date startDate, @DateTimeFormat(pattern="yyyy-MM-dd")Date endDate) {
+    public BaseResponse<List<ConsumerProfitsTotal>> profitsTotal(@PathVariable Integer id, @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate, @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate) {
         BaseResponse<List<ConsumerProfitsTotal>> response;
         try {
             response = consumerService.profitsTotal(id, startDate, endDate);
@@ -303,16 +310,16 @@ public class ConsumerController {
     @ApiOperation(value = "交易流水", notes = "交易流水", tags = "用户统计查询", httpMethod = "POST")
     public BaseResponse<PageInfo<ConsumerTranceDetail>> transactionDetail(@RequestBody TransactionDetailQuery query) {
         BaseResponse<PageInfo<ConsumerTranceDetail>> response;
-        try{
+        try {
             response = consumerService.transactionDetail(query);
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             logger.error(e.getMessage());
             response = new BaseResponse<>();
             response.setResponseMsg(ResponseCode.SERVER_FAILED.getMessage());
             response.setResponseCode(ResponseCode.SERVER_FAILED.getCode());
         }
-        return  response;
+        return response;
     }
 
     @GetMapping("team/{id}")
@@ -321,19 +328,20 @@ public class ConsumerController {
             @ApiImplicitParam(name = "id", value = "用户ID", example = "1", required = true, dataType = "int"),
             @ApiImplicitParam(name = "witchteam", value = "用户的哪个团队", example = "1", required = true, dataType = "int")
     })
-    public BaseResponse<List<ConsumerTeamVO>> team(@PathVariable Integer id, @DateTimeFormat(pattern="yyyy-MM-dd")Date  startDate,@DateTimeFormat(pattern="yyyy-MM-dd") Date endDate) {
+    public BaseResponse<List<ConsumerTeamVO>> team(@PathVariable Integer id, @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate, @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate) {
         BaseResponse<List<ConsumerTeamVO>> response;
-        try{
-            response = consumerService.team(id,startDate,endDate);
-        }catch(Exception e){
+        try {
+            response = consumerService.team(id, startDate, endDate);
+        } catch (Exception e) {
             e.printStackTrace();
             logger.error(e.getMessage());
             response = new BaseResponse<>();
             response.setResponseMsg(ResponseCode.SERVER_FAILED.getMessage());
             response.setResponseCode(ResponseCode.SERVER_FAILED.getCode());
         }
-        return  response;
+        return response;
     }
+
     @GetMapping("teamMember/{id}")
     @ApiOperation(value = "团队情况-人员明细", notes = "团队总览", tags = "用户统计查询", httpMethod = "GET")
     @ApiImplicitParams({
@@ -342,16 +350,132 @@ public class ConsumerController {
     })
     public BaseResponse<List<ConsumerInfoVO>> teamMember(@PathVariable Integer id, Integer witchteam) {
         BaseResponse<List<ConsumerInfoVO>> response;
-        try{
-            response = consumerService.teamMember(id,witchteam);
-        }catch(Exception e){
+        try {
+            response = consumerService.teamMember(id, witchteam);
+        } catch (Exception e) {
             e.printStackTrace();
             logger.error(e.getMessage());
             response = new BaseResponse<>();
             response.setResponseMsg(ResponseCode.SERVER_FAILED.getMessage());
             response.setResponseCode(ResponseCode.SERVER_FAILED.getCode());
         }
-        return  response;
+        return response;
     }
 
+    @GetMapping("phoneNoAssociate")
+    @ApiOperation(value = "手机号联想查询", notes = "批量转账", tags = "用户管理", httpMethod = "GET")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "phoneNo", value = "手机号", example = "13333333333", required = true, dataType = "string"),
+    })
+    public BaseResponse<List<String>> phoneNoAssociate(String phoneNo) {
+        BaseResponse<List<String>> response;
+        try {
+            response = consumerService.phoneNoAssociate(phoneNo);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+            response = new BaseResponse<>();
+            response.setResponseMsg(ResponseCode.SERVER_FAILED.getMessage());
+            response.setResponseCode(ResponseCode.SERVER_FAILED.getCode());
+        }
+        return response;
+    }
+
+    @GetMapping("queryBalance")
+    @ApiOperation(value = "手机号查余额", notes = "批量转账", tags = "用户管理", httpMethod = "GET")
+    @ApiImplicitParam(name = "phoneNo", value = "手机号", example = "13333333333", required = true, dataType = "string")
+    public BaseResponse queryBalance(String phoneNo) {
+        BaseResponse response;
+        try {
+            response = consumerService.queryBalance(phoneNo);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+            response = new BaseResponse<>();
+            response.setResponseMsg(ResponseCode.SERVER_FAILED.getMessage());
+            response.setResponseCode(ResponseCode.SERVER_FAILED.getCode());
+        }
+        return response;
+    }
+
+    @GetMapping("transferTeamInfo")
+    @ApiOperation(value = "团队信息查询", notes = "批量转账", tags = "用户管理", httpMethod = "GET")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "witchTeam", value = "团队", example = "0-左团队 1-右团队 2-全团队", required = true, dataType = "int"),
+            @ApiImplicitParam(name = "transferPhone", value = "转出人手机号", example = "1", required = true, dataType = "string")
+    })
+    public BaseResponse<List<String>> transferTeamInfo(String transferPhone, Integer witchTeam) {
+        BaseResponse<List<String>> response;
+        try {
+            response = consumerService.transferTeamInfo(transferPhone, witchTeam);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+            response = new BaseResponse<>();
+            response.setResponseMsg(ResponseCode.SERVER_FAILED.getMessage());
+            response.setResponseCode(ResponseCode.SERVER_FAILED.getCode());
+        }
+        return response;
+    }
+
+    @PostMapping("batchTransfer")
+    @ApiOperation(value = "批量转账", notes = "批量转账", tags = "用户管理", httpMethod = "GET")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "witchTeam", value = "团队", example = "0-左团队 1-右团队 2-全团队", required = true, dataType = "int"),
+            @ApiImplicitParam(name = "transferPhone", value = "转出人手机号", example = "1", required = true, dataType = "string")
+    })
+    public BaseResponse batchTransfer(@RequestBody BatchTransferVO batchTransferVO) {
+        BaseResponse response;
+        try {
+            response = consumerService.batchTransfer(batchTransferVO);
+        } catch (MyException e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+            response = new BaseResponse<>();
+            response.setResponseMsg(e.getMessage());
+            response.setResponseCode(ResponseCode.SERVER_FAILED.getCode());
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+            response = new BaseResponse<>();
+            response.setResponseMsg(ResponseCode.SERVER_FAILED.getMessage());
+            response.setResponseCode(ResponseCode.SERVER_FAILED.getCode());
+        }
+        return response;
+    }
+
+    @PostMapping("importExcelAddConsumer")
+    @ApiOperation(value = "导入表格新增用户", notes = "导入表格新增用户", tags = "用户管理", httpMethod = "POST")
+    public BaseResponse importExcelAddConsumer(@NotNull MultipartFile file) {
+        BaseResponse response;
+        try {
+            if (file == null) {
+                response = new BaseResponse();
+                response.setResponseMsg(ResponseCode.IMPORT_EXCEL_WRONG.getMessage());
+                response.setResponseCode(ResponseCode.IMPORT_EXCEL_WRONG.getCode());
+                return response;
+            }
+            String fileName = file.getOriginalFilename();
+           response= consumerService.importExcel(fileName, file);
+        }catch (MyException e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+            response = new BaseResponse<>();
+            response.setResponseMsg(e.getMessage());
+            response.setResponseCode(ResponseCode.SERVER_FAILED.getCode());
+        } catch (IOException e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+            response = new BaseResponse<>();
+            response.setResponseCode(ResponseCode.SERVER_FAILED.getCode());
+            response.setResponseMsg(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+            response = new BaseResponse<>();
+            response.setResponseMsg(ResponseCode.SERVER_FAILED.getMessage());
+            response.setResponseCode(ResponseCode.SERVER_FAILED.getCode());
+        }
+        return response;
+    }
 }

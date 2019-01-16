@@ -36,6 +36,8 @@ public class Consumer implements Serializable {
 
     private String refereeCode;
 
+    private  String nickName;
+
     private static final long serialVersionUID = 1L;
 
     public Integer getId() {
@@ -158,6 +160,13 @@ public class Consumer implements Serializable {
         this.refereeCode = refereeCode;
     }
 
+    public String getNickName() {
+        return nickName;
+    }
+
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
 
     public String getCreatTime(){
         if(createTime==null){

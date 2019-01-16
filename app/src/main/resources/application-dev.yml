@@ -8,14 +8,14 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
       #监控统计拦截的filters
-      filters: stat
-      driver-class-name: com.mysql.jdbc.Driver
-      url: jdbc:mysql://rm-8vb9q0m9d1vtweyguzo.mysql.zhangbei.rds.aliyuncs.com:3306/bht?characterEncoding=utf-8&useSSL=false&useCursorFetch=true
-      username: bht
-      password: bht_2018
-#      url: jdbc:mysql://127.0.0.1:3306/coinmarket?characterEncoding=utf-8&useSSL=false&useCursorFetch=true
-#      username: root
-#      password: root
+#      filters: stat
+#      driver-class-name: com.mysql.jdbc.Driver
+#      url: jdbc:mysql://rm-8vb9q0m9d1vtweyguzo.mysql.zhangbei.rds.aliyuncs.com:3306/bht?characterEncoding=utf-8&useSSL=false&useCursorFetch=true
+#      username: bht
+#      password: bht_2018
+      url: jdbc:mysql://127.0.0.1:3306/coinmarket?characterEncoding=utf-8&useSSL=false&useCursorFetch=true
+      username: root
+      password: root
     mvc:
       static-path-pattern: /static/**
   jackson:
@@ -39,14 +39,14 @@ pagehelper:
 
 bugumongo:
   db:
-    host: dds-8vbce58e780028c41916-pub.mongodb.zhangbei.rds.aliyuncs.com
-    port: 3717
-    database: admin
-    username: root
-    password: bht_2018
-#    host: 192.168.228.133
-#    port: 27017
-#    database: mongotest
+#    host: dds-8vbce58e780028c41916-pub.mongodb.zhangbei.rds.aliyuncs.com
+#    port: 3717
+#    database: admin
+#    username: root
+#    password: bht_2018
+    host: 192.168.228.133
+    port: 27017
+    database: mongotest
 logging:
   level:
     root: INFO

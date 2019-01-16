@@ -3,6 +3,8 @@ package com.flc.coinmarket.dao.mysql.mapper.consumer;
 import com.flc.coinmarket.dao.mysql.model.consumer.Consumer;
 import com.flc.coinmarket.dao.mysql.model.consumer.ConsumerExample;
 import com.flc.coinmarket.dao.mysql.model.consumer.ConsumerWithBLOBs;
+
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.flc.coinmarket.dao.pojo.ConsumerQuery;
@@ -47,4 +49,11 @@ public interface ConsumerMapper {
 
     String selectMaxTeamPostCode();
 
+    //联想查询手机号
+    List<String> phoneNoAssociate(String phoneNo);
+
+    //根据手机号查询余额
+    BigDecimal queryBalanceByPhoneNo(String phoneNo);
+
+    List<String> selectConsumerMemberPhoneNo(String fullPath);
 }

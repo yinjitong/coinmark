@@ -3,6 +3,7 @@ package com.flc.coinmarket.admin.service;
 import com.bugull.mongo.BuguQuery;
 import com.flc.coinmarket.core.constant.Constants;
 import com.flc.coinmarket.core.util.DateUtil;
+import com.flc.coinmarket.dao.business.CommonUpdateInter;
 import com.flc.coinmarket.dao.mongo.dao.ConsumerTranceDetailDAO;
 import com.flc.coinmarket.dao.mongo.model.ConsumerTranceDetail;
 import com.flc.coinmarket.dao.mysql.mapper.consumer.ConsumerCapitalAccountMapper;
@@ -97,6 +98,8 @@ public class ScheduledTaskService {
     SysDictionaryMapper sysDictionaryMapper;
     @Autowired
     ConsumerSettingsMapper consumerSettingsMapper;
+    @Autowired
+    private CommonUpdateInter commonUpdateInter;
 
     SettlementService settlementService = new SettlementService();
 
@@ -120,8 +123,6 @@ public class ScheduledTaskService {
 
         List<ConsumerTranceDetail> tranceDetails = new ArrayList<>();
 
-        //获取内部账号余额
-        BigDecimal interBalance = interAccountAddressBalace();
         //获取内部账地址
         String interAcoountAddress = getInterAcoountAddress();
 
@@ -146,7 +147,8 @@ public class ScheduledTaskService {
             //本次交易流水号
             String tranNo = UUID.randomUUID().toString().replace("-", "").toLowerCase();
 
-            interBalance= interBalance.subtract(lockProfits);
+            //更新余额
+            BigDecimal interBalance = commonUpdateInter.updateInterBalance(lockProfits.negate());
             //内部账 付
             tranceDetails.add(createTranceDetail(tranNo, null,lockProfits.negate(), Constants.INCOME.VALUE,
                     Constants.INCOME.SourceType.LOCK_REPO_PROFITS.getValue(), interAcoountAddress, account.getFloatingAddress(),account.getId()
@@ -339,8 +341,6 @@ public class ScheduledTaskService {
         List<ProfitsRatio> teamParamList = profitsTeamRatioMapper.selectByExample(profitsTeamRatioExample);
         List<ConsumerTranceDetail> tranceDetails = new ArrayList<>();
 
-        //查询内部账余额
-        BigDecimal interBalance = interAccountAddressBalace();
         //获取内部账号地址
         String interAcoountAddress = getInterAcoountAddress();
 
@@ -371,7 +371,7 @@ public class ScheduledTaskService {
             ConsumerSettings setting= settings.get(0);
 
             //内部账号余额
-            interBalance=interBalance.subtract(teamProfits);
+            BigDecimal interBalance = commonUpdateInter.updateInterBalance(teamProfits.negate());
             //本次交易流水号
             String tranNo = UUID.randomUUID().toString().replace("-", "").toLowerCase();
 
@@ -645,9 +645,6 @@ public class ScheduledTaskService {
 
         //获取内部账地址
         String interAcoountAddress = getInterAcoountAddress();
-        //查询内部账号余额
-        BigDecimal interBalance = interAccountAddressBalace();
-
         for (ConsumerCapitalAccount account : capitalAccounts) {
             BigDecimal destroyLockrepo = settlementService.destoryLock(account, destroyTimes, destroyLimit);
             if (destroyLockrepo.compareTo(new BigDecimal(0)) < 1) {
@@ -668,7 +665,7 @@ public class ScheduledTaskService {
             }
             ConsumerSettings setting= settings.get(0);
 
-            interBalance =interBalance.add(destroyLockrepo);
+            BigDecimal interBalance = commonUpdateInter.updateInterBalance(destroyLockrepo);
             //本次交易流水号
             String tranNo = UUID.randomUUID().toString().replace("-", "").toLowerCase();
             //锁仓  付
@@ -881,11 +878,4 @@ public class ScheduledTaskService {
         return sysDictionary.getDicValue();
     }
 
-    public BigDecimal interAccountAddressBalace(){
-        String interAcoountAddress = getInterAcoountAddress();
-        //查询内部账号余额
-        BuguQuery<ConsumerTranceDetail> query = consumerTranceDetailDAO.query();
-        List<ConsumerTranceDetail> results = query.in("transferAddressFrom", interAcoountAddress).sortDesc("updatedTime").results();
-        return results.size() == 0 || results.get(0) == null ? BigDecimal.ZERO : results.get(0).getBalance();
-    }
 }

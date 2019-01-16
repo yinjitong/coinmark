@@ -7,6 +7,7 @@ import com.flc.coinmarket.app.service.ConsumerService;
 import com.flc.coinmarket.core.base.BaseRequest;
 import com.flc.coinmarket.core.base.BaseResponse;
 import com.flc.coinmarket.core.base.ResponseCode;
+import com.flc.coinmarket.core.exception.MyException;
 import com.flc.coinmarket.dao.mysql.model.consumer.Consumer;
 import com.flc.coinmarket.dao.mysql.model.consumer.ConsumerWithBLOBs;
 import com.flc.coinmarket.dao.mysql.model.statistics.ConsumerProfitsDaily;
@@ -66,7 +67,7 @@ public class ConsumerController {
         BaseResponse response;
         try {
             response = consumerService.regist(consumerRegist);
-        }catch(RuntimeException e){
+        }catch(MyException e){
             logger.error(e.getMessage());
             response = new BaseResponse();
             response.setResponseCode(ResponseCode.PARAMETER_VALIDATION_FAILED.getCode());
@@ -166,7 +167,13 @@ public class ConsumerController {
             String token = httpServletRequest.getHeader("token");
             String consumerId = JWT.decode(token).getAudience().get(0);
             response = consumerService.changeFundspswd(consumerPwdQuery,Integer.parseInt(consumerId));
-        } catch (Exception e) {
+        } catch (MyException e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+            response = new BaseResponse();
+            response.setResponseCode(ResponseCode.SERVER_FAILED.getCode());
+            response.setResponseMsg(e.getMessage());
+        }catch (Exception e) {
             e.printStackTrace();
             logger.error(e.getMessage());
             response = new BaseResponse();
@@ -183,7 +190,13 @@ public class ConsumerController {
         BaseResponse response;
         try {
             response = consumerService.forgetPwd(consumerPwdQuery);
-        } catch (Exception e) {
+        } catch (MyException e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+            response = new BaseResponse();
+            response.setResponseCode(ResponseCode.SERVER_FAILED.getCode());
+            response.setResponseMsg(e.getMessage());
+        }catch (Exception e) {
             e.printStackTrace();
             logger.error(e.getMessage());
             response = new BaseResponse();
@@ -286,6 +299,55 @@ public class ConsumerController {
         }
         return response;
     }
+    @UserLoginToken
+    @PostMapping("checkOrgPhone")
+    @ApiOperation(value = "检验原手机号", notes = "检验原手机号", tags = "app-我的",httpMethod = "POST")
+    public BaseResponse checkOrgPhone(HttpServletRequest httpServletRequest,@RequestBody  UpdatePhoneNoQuery updatePhoneNoQuery){
+        BaseResponse response;
+        try {
+            String token = httpServletRequest.getHeader("token");
+            String consumerId = JWT.decode(token).getAudience().get(0);
+            response = consumerService.checkOrgPhone(Integer.parseInt(consumerId),updatePhoneNoQuery);
+        } catch (MyException e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+            response = new BaseResponse();
+            response.setResponseCode(ResponseCode.SERVER_FAILED.getCode());
+            response.setResponseMsg(e.getMessage());
+        }catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+            response = new BaseResponse();
+            response.setResponseCode(ResponseCode.SERVER_FAILED.getCode());
+            response.setResponseMsg(ResponseCode.SERVER_FAILED.getMessage());
+        }
+        return response;
+    }
+
+    @UserLoginToken
+    @PostMapping("updatePhoneNo")
+    @ApiOperation(value = "修改手机号", notes = "修改手机号", tags = "app-我的",httpMethod = "POST")
+    public BaseResponse updatePhoneNo(HttpServletRequest httpServletRequest,@RequestBody  UpdatePhoneNoQuery updatePhoneNoQuery){
+        BaseResponse response;
+        try {
+            String token = httpServletRequest.getHeader("token");
+            String consumerId = JWT.decode(token).getAudience().get(0);
+            response = consumerService.updatePhoneNo(Integer.parseInt(consumerId),updatePhoneNoQuery);
+        } catch (MyException e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+            response = new BaseResponse();
+            response.setResponseCode(ResponseCode.SERVER_FAILED.getCode());
+            response.setResponseMsg(e.getMessage());
+        }catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+            response = new BaseResponse();
+            response.setResponseCode(ResponseCode.SERVER_FAILED.getCode());
+            response.setResponseMsg(ResponseCode.SERVER_FAILED.getMessage());
+        }
+        return response;
+    }
 
     @PostMapping("getSysTime")
     public BaseResponse<Long>  getSysTime(){
@@ -304,4 +366,6 @@ public class ConsumerController {
         }
         return baseResponse;
     }
+
+
 }

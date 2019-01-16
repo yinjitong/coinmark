@@ -556,6 +556,22 @@
       SELECT team_pos_code
       FROM consumer WHERE
       id=(SELECT MAX(id) FROM consumer)
-    </select>
+  </select>
+
+  <select id="phoneNoAssociate" parameterType="string" resultType="string">
+      select  phone_no  from consumer where phone_no like #{phoneNo} and delete_flag="0"
+  </select>
+
+  <select id="queryBalanceByPhoneNo" parameterType="string" resultType="BigDecimal">
+    select  floating_funds floatingFunds from consumer_capital_account where
+    consumer_id =(select  id from  consumer where phone_no=#{phoneNo} and  delete_flag="0")
+  </select>
+
+  <select id="selectConsumerMemberPhoneNo" parameterType="string" resultType="string">
+      SELECT
+        c.phone_no phoneNo
+      FROM consumer c
+      WHERE  full_path LIKE #{fullPath}
+  </select>
 
 </mapper>

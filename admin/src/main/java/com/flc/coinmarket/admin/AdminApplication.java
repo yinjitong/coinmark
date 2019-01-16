@@ -14,7 +14,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @SpringBootApplication(exclude = MongoAutoConfiguration.class)
 @EnableTransactionManagement
 @MapperScan(value = "com.flc.coinmarket.dao.mysql.mapper.*")
-@ComponentScan(basePackages = {"com.flc.coinmarket.admin", "com.flc.coinmarket.dao.mongo"})
+@ComponentScan(basePackages = {"com.flc.coinmarket.admin", "com.flc.coinmarket.dao.mongo","com.flc.coinmarket.dao.business"})
 public class AdminApplication {
 
     public static void main(String[] args) {
