@@ -527,7 +527,7 @@
     </if>
     <if test="registryTimeFrom != null">
       and create_time >= #{registryTimeFrom}
-    </if>
+  </if>
     <if test="registryTimeTo != null">
       and #{registryTimeTo}>create_time
     </if>
@@ -571,7 +571,7 @@
       SELECT
         c.phone_no phoneNo
       FROM consumer c
-      WHERE  full_path LIKE #{fullPath}
+      WHERE  full_path LIKE #{fullPath} and c.delete_flag="0"
   </select>
 
 </mapper>

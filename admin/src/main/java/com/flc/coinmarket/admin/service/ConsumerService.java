@@ -805,7 +805,7 @@ public class ConsumerService {
             if(batchTransferVO.getAddressFlag().equals("0")){
                 incomeBalance=incomeAccount.getFloatingFunds().add(batchTransferVO.getTransferAmt());
             }else{
-                incomeBalance=incomeAccount.getFloatingFunds();
+                incomeBalance=incomeAccount.getLockrepoFunds().add(batchTransferVO.getTransferAmt());
             }
             ConsumerTranceDetail incomeDetail = createTranceDetail(tranNo, batchTransferVO.getTransferAmt(),
                     Constants.INCOME.VALUE, Constants.INCOME.SourceType.TRANS_IN.getValue(),
