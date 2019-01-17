@@ -913,10 +913,7 @@ public class ConsumerService {
             response.setResponseMsg(ResponseCode.PHONE_NOT_UPDATE.getMessage());
             return response;
         }
-        //获取新手机号验证码
-        dealCheckCode(updatePhoneNoQuery.getNewPhoneNo(),updatePhoneNoQuery.getNewCheckCode(),"updatePhoneNoNew");
-
-        //修改用户账号和手机号
+        //查询原手机号用户信息
         ConsumerExample consumerExample=new ConsumerExample();
         consumerExample.createCriteria().andAccountEqualTo(updatePhoneNoQuery.getOrgPhoneNo()).andDeleteFlagEqualTo("0");
         List<Consumer> consumers = consumerMapper.selectByExample(consumerExample);
@@ -925,7 +922,7 @@ public class ConsumerService {
             response.setResponseMsg(ResponseCode.PHONE_NO_INVALID.getMessage());
             return response;
         }
-
+        //验证新手机号是否已被注册
         ConsumerExample consumerExampleNew=new ConsumerExample();
         consumerExampleNew.createCriteria().andAccountEqualTo(updatePhoneNoQuery.getNewPhoneNo()).andDeleteFlagEqualTo("0");
         List<Consumer> consumersNew = consumerMapper.selectByExample(consumerExampleNew);
@@ -934,6 +931,8 @@ public class ConsumerService {
             response.setResponseMsg(ResponseCode.PHONE_HAS_REGIST.getMessage());
             return response;
         }
+        //获取新手机号验证码
+        dealCheckCode(updatePhoneNoQuery.getNewPhoneNo(),updatePhoneNoQuery.getNewCheckCode(),"updatePhoneNoNew");
 
         Consumer consumer= consumers.get(0);
         consumer.setPhoneNo(updatePhoneNoQuery.getNewPhoneNo());
